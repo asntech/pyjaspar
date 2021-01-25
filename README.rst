@@ -1,0 +1,112 @@
+pyJASPAR
+--------
+
+	A BioPython/SQLite interface to access JASPAR motifs from different releases
+
+.. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
+    :target: https://travis-ci.org/asntech/pyjaspar
+
+.. image:: https://img.shields.io/pypi/pyversions/pyjaspar.svg
+    :target: https://www.python.org
+
+.. image:: https://img.shields.io/pypi/v/pyjaspar.svg
+    :target: https://pypi.python.org/pypi/pyjaspar
+
+.. image:: https://anaconda.org/bioconda/pyjaspar/badges/version.svg
+	:target: https://anaconda.org/bioconda/pyjaspar
+
+.. image:: https://anaconda.org/bioconda/pyjaspar/badges/downloads.svg
+    :target: https://bioconda.github.io/recipes/pyjaspar/README.html
+
+.. image:: https://anaconda.org/bioconda/pyjaspar/badges/installer/conda.svg
+	:target: https://conda.anaconda.org/bioconda
+
+.. image:: https://img.shields.io/github/issues/asntech/pyjaspar.svg
+	:target: https://github.com/asntech/pyjaspar/issues
+
+
+Documentation
+=============
+
+**A detailed documentation is available in different formats:**  `HTML <http://pyjaspar.readthedocs.org>`_ | `PDF <http://readthedocs.org/projects/pyjaspar/downloads/pdf/latest/>`_ | `ePUB <http://readthedocs.org/projects/pyjaspar/downloads/epub/latest/>`_
+
+
+Installation
+============
+
+Quick installation using `conda`
+-------------------------------
+pyJASPAR is available on `Bioconda <https://anaconda.org/bioconda/pyjaspar>`_ for installation via ``conda``.
+
+.. code-block:: bash
+
+	conda install -c bioconda pyjaspar
+
+
+Install using `pip`
+-------------------
+pyJASPAR is also available on `PyPi <https://pypi.org/project/pyjaspar/>`_ for installation via ``pip``.
+
+.. code-block:: bash
+
+	pip install pyjaspar
+	
+
+pyJASPAR uses BioPython and it supports python ``3.x``. 
+
+Install pyjaspar from source
+=============================
+You can install a development version by using ``git`` from GitHub.
+
+
+Install development version from `GitHub`
+-----------------------------------------
+If you have `git` installed, use this:
+
+.. code-block:: bash
+
+    git clone https://github.com/asntech/pyjaspar.git
+    cd pyjaspar
+    python setup.py sdist install
+
+How to use pyJASPAR
+====================
+Once you have installed pyjaspar, you can type:
+
+.. code-block:: python
+
+	from pyjaspar import jaspardb
+        
+    jdb_obj = jaspardb(release='JASPAR2020')
+    yy1 = jdb_obj.fetch_motif_by_id('MA0095')
+    print(yy1)
+    TF name YY1
+    Matrix ID   MA0095.2
+    Collection  CORE
+    TF class    C2H2 zinc finger factors
+    TF family   More than 3 adjacent zinc finger factors
+    Species 9606
+    Taxonomic group vertebrates
+    Accession   ['P25490']
+    Data type used  ChIP-seq
+    Medline 18950698
+    PAZAR ID    TF0000069
+    Matrix:
+            0      1      2      3      4      5      6      7      8      9     10     11
+    A: 1126.00 6975.00 6741.00 2506.00 7171.00   0.00  11.00  13.00 812.00 867.00 899.00 1332.00
+    C: 4583.00   0.00  99.00 1117.00   0.00  12.00   0.00   0.00 5637.00 1681.00 875.00 4568.00
+    G: 801.00 181.00 268.00 3282.00   0.00   0.00 7160.00 7158.00  38.00 2765.00 4655.00 391.00
+    T: 661.00  15.00  63.00 266.00   0.00 7159.00   0.00   0.00 684.00 1858.00 742.00 880.00
+
+    motifs = jdb_obj.fetch_motifs(
+        collection = 'CORE',
+        tax_group = ['vertebrates', 'insects'],
+        tf_class = 'Homeo domain factors',
+        tf_family = ['TALE-type homeo domain factors', 'POU domain factors'],
+        min_ic = 12
+    )
+    for motif in motifs:
+        pass # do something with the motif
+
+
+
