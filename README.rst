@@ -26,16 +26,16 @@ pyJASPAR
 
 
 Documentation
-=============
+-------------
 
 **A detailed documentation is available in different formats:**  `HTML <http://pyjaspar.readthedocs.org>`_ | `PDF <http://readthedocs.org/projects/pyjaspar/downloads/pdf/latest/>`_ | `ePUB <http://readthedocs.org/projects/pyjaspar/downloads/epub/latest/>`_
 
 
 Installation
-============
+------------
 
 Quick installation using `conda`
--------------------------------
+====================================
 pyJASPAR is available on `Bioconda <https://anaconda.org/bioconda/pyjaspar>`_ for installation via ``conda``.
 
 .. code-block:: bash
@@ -44,7 +44,7 @@ pyJASPAR is available on `Bioconda <https://anaconda.org/bioconda/pyjaspar>`_ fo
 
 
 Install using `pip`
--------------------
+==================
 pyJASPAR is also available on `PyPi <https://pypi.org/project/pyjaspar/>`_ for installation via ``pip``.
 
 .. code-block:: bash
@@ -60,7 +60,7 @@ You can install a development version by using ``git`` from GitHub.
 
 
 Install development version from `GitHub`
------------------------------------------
+==========================================
 If you have `git` installed, use this:
 
 .. code-block:: bash
@@ -69,15 +69,19 @@ If you have `git` installed, use this:
     cd pyjaspar
     python setup.py sdist install
 
-How to use pyJASPAR
-====================
+How to use pyJASPAR?
+--------------------
+
 Once you have installed pyjaspar, you can type:
 
 .. code-block:: python
 
-	from pyjaspar import jaspardb
-        
+    from pyjaspar import jaspardb
+    
+    #get the JASPAR2020 release object    
     jdb_obj = jaspardb(release='JASPAR2020')
+
+    #Fetch motif by ID
     yy1 = jdb_obj.fetch_motif_by_id('MA0095')
     print(yy1)
     TF name YY1
@@ -108,5 +112,10 @@ Once you have installed pyjaspar, you can type:
     for motif in motifs:
         pass # do something with the motif
 
-
+Get available release
+=====================
+.. code-block:: python
+    
+    > print(jdb_obj.get_releases())
+    > Available JASPAR releases are: ['JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
