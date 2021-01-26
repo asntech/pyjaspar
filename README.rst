@@ -3,7 +3,11 @@ pyJASPAR
 
 	A Python interface to query and access JASPAR motifs from different releases of JASPAR database using BioPython and sqlite3.
 
-Currently, pyJASPAR provides access to JASPAR database releases including: `JASPAR2020`, `JASPAR2018`, `JASPAR2016`, and `JASPAR2014`.
+pyJASPAR provides access to JASPAR database releases including:
+    - `JASPAR2020 <http://jaspar2020.genereg.net>`_
+    - `JASPAR2018 <http://jaspar2018.genereg.net>`_
+    - `JASPAR2016 <http://jaspar2016.genereg.net>`_
+    - `JASPAR2014 <http://jaspar2014.genereg.net>`_
 
 .. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
     :target: https://travis-ci.org/asntech/pyjaspar
@@ -104,14 +108,16 @@ Once you have installed pyjaspar, you can type:
     G: 801.00 181.00 268.00 3282.00   0.00   0.00 7160.00 7158.00  38.00 2765.00 4655.00 391.00
     T: 661.00  15.00  63.00 266.00   0.00 7159.00   0.00   0.00 684.00 1858.00 742.00 880.00
 
+    ## get CORE vertebrates collection of motifs
     >>> motifs = jdb_obj.fetch_motifs(
         collection = 'CORE',
-        tax_group = ['vertebrates', 'insects'],
-        tf_class = 'Homeo domain factors',
-        tf_family = ['TALE-type homeo domain factors', 'POU domain factors']
+        tax_group = ['vertebrates']
         )
     >>> for motif in motifs:
-            pass # do something with the motif
+            print(motif.matrix_id)
+            print(motif.counts)
+            # do something with the motif
+
 
 Get available release
 =====================
