@@ -1,4 +1,5 @@
 # Copyright 2013 by David Arenillas and Anthony Mathelier. All rights reserved.
+# Revisions 2021 copyright by Aziz Khan.  All rights reserved.
 # This code is part of the Biopython distribution and governed by its
 # license. Please see the LICENSE file that should have been included
 # as part of this package.
@@ -11,8 +12,8 @@ Example, substitute the database release/version name::
     from pyjaspar import jaspardb
         
     jdb_obj = jasqlite(release='JASPAR2020')
-    yy1 = jdb_obj.fetch_motif_by_id('MA0095')
-    print(yy1)
+    motif = jdb_obj.fetch_motif_by_id('MA0095')
+    print(motif)
     TF name YY1
     Matrix ID   MA0095.2
     Collection  CORE
