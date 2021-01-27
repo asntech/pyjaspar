@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """
-This is a setup script for BiasAway: a tool for DNA sequence background generation 
+This is a setup script for pyJASPAR: a tool for DNA sequence background generation 
 
 This code is free software; you can redistribute it and/or modify it under the terms of the 
-BSD License (see the file LICENSE.md included with the distribution).
+BSD License (see the file LICENSE included with the distribution).
 
 @author: Aziz Khan
 @email: azez.khan@gmail.com
@@ -21,10 +21,9 @@ CLASSIFIERS = [
     'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
     'Topic :: Scientific/Engineering :: Bio-Informatics',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -42,7 +41,7 @@ def readme(fname):
 
 setup(
     name="pyjaspar",
-    description="A BioPython/SQLite interface to access JASPAR motifs from different releases",
+    description="A serverless interface to Biopython to access different versions of JASPAR database",
     version=VERSION,
     author="Aziz Khan",
     license='GPL',
@@ -50,13 +49,14 @@ setup(
     author_email="azez.khan@gmail.com",
     url="https://github.com/asntech/pyjaspar",
     long_description=readme("README.rst"),
+    long_description_content_type='text/x-rst',
     package_dir={'pyjaspar': 'pyjaspar'},
 
     packages=['pyjaspar',
         'pyjaspar.data'
         ],
 
-    package_data={'pyjaspar': ['data/*.sqlite',]},
+    package_data={'pyjaspar': ['pyjaspar/data/*.sqlite',]},
     include_package_data=True,
     install_requires = install_requires,
     classifiers=CLASSIFIERS,

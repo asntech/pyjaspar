@@ -2,7 +2,7 @@
 pyJASPAR Documentation
 =======================
 
-Welcome to pyJASPAR - a Python interface to query and access JASPAR motifs from different releases of JASPAR database using BioPython and sqlite3.
+Welcome to pyJASPAR - a serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
 
 .. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
     :target: https://travis-ci.org/asntech/pyjaspar
@@ -26,7 +26,7 @@ Welcome to pyJASPAR - a Python interface to query and access JASPAR motifs from 
 .. toctree::
    :maxdepth: 2
    :caption: Table of contents
-   
+
    intro
    install
    how_to_use

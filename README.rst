@@ -1,13 +1,7 @@
 pyJASPAR
 --------
 
-	A Python interface to query and access JASPAR motifs from different releases of JASPAR database using BioPython and sqlite3.
-
-pyJASPAR provides access to JASPAR database releases including:
-    - `JASPAR2020 <http://jaspar2020.genereg.net>`_
-    - `JASPAR2018 <http://jaspar2018.genereg.net>`_
-    - `JASPAR2016 <http://jaspar2016.genereg.net>`_
-    - `JASPAR2014 <http://jaspar2014.genereg.net>`_
+	A serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
 
 .. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
     :target: https://travis-ci.org/asntech/pyjaspar
@@ -19,16 +13,28 @@ pyJASPAR provides access to JASPAR database releases including:
     :target: https://pypi.python.org/pypi/pyjaspar
 
 .. image:: https://anaconda.org/bioconda/pyjaspar/badges/version.svg
-	:target: https://anaconda.org/bioconda/pyjaspar
+    :target: https://anaconda.org/bioconda/pyjaspar
 
 .. image:: https://anaconda.org/bioconda/pyjaspar/badges/downloads.svg
     :target: https://bioconda.github.io/recipes/pyjaspar/README.html
 
 .. image:: https://anaconda.org/bioconda/pyjaspar/badges/installer/conda.svg
-	:target: https://conda.anaconda.org/bioconda
+    :target: https://conda.anaconda.org/bioconda
 
 .. image:: https://img.shields.io/github/issues/asntech/pyjaspar.svg
-	:target: https://github.com/asntech/pyjaspar/issues
+    :target: https://github.com/asntech/pyjaspar/issues
+
+.. image:: https://readthedocs.org/projects/pyjaspar/badge/?version=latest
+    :target: https://pyjaspar.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+pyJASPAR provides access to JASPAR database releases including:
+    - `JASPAR2020 <http://jaspar2020.genereg.net>`_
+    - `JASPAR2018 <http://jaspar2018.genereg.net>`_
+    - `JASPAR2016 <http://jaspar2016.genereg.net>`_
+    - `JASPAR2014 <http://jaspar2014.genereg.net>`_
+
+.. note:: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details. 
 
 
 Documentation
@@ -40,7 +46,7 @@ Documentation
 Installation
 ------------
 
-Quick installation using `conda`
+Quick installation using conda
 ================================
 pyJASPAR is available on `Bioconda <https://anaconda.org/bioconda/pyjaspar>`_ for installation via ``conda``.
 
@@ -49,7 +55,7 @@ pyJASPAR is available on `Bioconda <https://anaconda.org/bioconda/pyjaspar>`_ fo
 	conda install -c bioconda pyjaspar
 
 
-Install using `pip`
+Install using pip
 ==================
 pyJASPAR is also available on `PyPi <https://pypi.org/project/pyjaspar/>`_ for installation via ``pip``.
 

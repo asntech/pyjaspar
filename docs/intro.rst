@@ -2,7 +2,10 @@
 What is pyJASPAR?
 =================
 
-pyJASPAR is Python interface to query and access JASPAR motifs from different releases of JASPAR database using BioPython and sqlite3.
+pyJASPAR is a python module and a serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
+
+.. note:: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details. 
+
 
 Currently, pyJASPAR provides access to JASPAR database releases including:
 

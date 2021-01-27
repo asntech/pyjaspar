@@ -42,7 +42,7 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '0.1.1'
+__version__ = '1.0.0'
 
 
 import warnings
@@ -105,7 +105,7 @@ class jaspardb(object):
         return r"JASPAR release:%s:%s" % (self.release, self.conn)
 
     def get_releases(self):
-        """Prints available JASPAR releases.
+        """Return available JASPAR releases/version.
 
         Returns:
          - A list of JASPAR available releases
@@ -115,7 +115,7 @@ class jaspardb(object):
         for key, value in jaspar_releases.items():
             #print(key)
             releases.append(key)
-        print("Available JASPAR releases are: {releases}")
+        #print("Available JASPAR releases are: {releases}")
         return releases
 
 
