@@ -2,7 +2,7 @@
 pyJASPAR Documentation
 =======================
 
-Welcome to pyJASPAR - a serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
+**Welcome to pyJASPAR**! — a serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
 
 .. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
     :target: https://travis-ci.org/asntech/pyjaspar

@@ -1,15 +1,17 @@
-====================
-How to use pyJASPAR
-====================
+=====================
+How to use pyJASPAR?
+=====================
 
-Once you have installed pyJASPAR, you can load the module and connect to the latest release of JASPAR:
+Once you have installed `pyjaspar`, you can load the module and connect to the latest release of JASPAR:
 
 .. code-block:: pycon
 
     >>> from pyjaspar import jaspardb
 
-Connect to the version of JASPAR you're interested in. This will return jaspardb class object.
-For example here we're getting the JASPAR2018.
+Connect to the JASPAR release
+-----------------------------
+Next step is to connect to the version of JASPAR you're interested by creating a jaspardb class object.
+For example here we're using the the JASPAR2018.
 
 .. code-block:: pycon
 
@@ -31,9 +33,16 @@ By default it is set to latest release/version of JASPAR database. For example.
     JASPAR2020
 
 
+You can also connect to a local copy of JASPAR SQLite database by setting absolute path `sqlite_db_path`. For example.
+
+.. code-block:: pycon
+
+    >>> jdb_obj = jaspardb(sqlite_db_path='/path/to/jaspar.sqlite')
+
+
 Get available releases
 ----------------------
-You can find the available releases/version of JASPAR using.
+You can find the available releases/version of JASPAR using `get_releases` method.
 
 
 .. code-block:: pycon
@@ -52,11 +61,10 @@ If you want to get the motif details for a specific TF using the JASPAR ID. If y
 
 Printing the motif will all the associated meta-information stored in the JASPAR database cluding the matric counts.
 
-
 .. code-block:: pycon
 
     >>> print(motif)
-    TF name	YY1
+    	TF name	YY1
 	Matrix ID	MA0095.2
 	Collection	CORE
 	TF class	C2H2 zinc finger factors
@@ -97,7 +105,7 @@ You can use the `fetch_motifs_by_name` function to find motifs by TF name. This 
     >>> print(len(motifs))
     2
     >>> print(motifs)
-    TF name	CTCF
+    	TF name	CTCF
 	Matrix ID	MA0139.1
 	Collection	CORE
 	TF class	C2H2 zinc finger factors
@@ -138,7 +146,7 @@ Search motifs based on meta-info
 A more commonly used function is `fetch_motifs` helps you to get motifs which match a specified set of criteria.
 You can query the database based on the available meta-information in the database.
 
-For example, here we are gettting the widely used CORE collection for vertebrates. It returns a list of non-redundent motifs. 
+For example, here we are gettting the widely used CORE collection for vertebrates. It returns a list of 746 non-redundent motifs for JASPAR2020 release. 
 
 .. code-block:: pycon
 
@@ -155,7 +163,7 @@ You can loop through these motifs and perform your analysis.
 
     >>> for motif in motifs:
     		print(motif.matrix_id)
-    MA0004.1
+    	MA0004.1
 	MA0006.1
 	-
 	-

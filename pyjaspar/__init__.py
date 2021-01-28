@@ -42,7 +42,7 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '1.0.0'
+__version__ = '1.0.2'
 
 
 import warnings
@@ -68,12 +68,12 @@ JASPAR_DFLT_COLLECTION = "CORE"
 class jaspardb(object):
     """Class representing a JASPAR SQLite database.
 
-    This ia adapted from the biopython JASPAR5 MYSQL DB.
+    This is adapted from the biopython JASPAR5 MYSQL DB.
 
     """
 
     def __init__(self, release=JASPAR_LATEST_RELEASE, sqlite_db_path=None):
-        """Construct a JASPAR5 instance and connect to specified DB.
+        """Construct a jaspardb instance and connect to specified DB.
 
         By default it connects to the JASPAR_LATEST_RELEASE which can be over written by using sqlite_db_path
 
@@ -89,16 +89,19 @@ class jaspardb(object):
         if sqlite_db_path:
             try:
                 self.conn =  sqlite3.connect(sqlite_db_path)
+                self.release = sqlite_db_path
             except Error as e:
                 print(e)
         else:
             try:
+                release_value = jaspar_releases[release]
                 try:
-                    self.conn =  sqlite3.connect(get_jaspardb_path(jaspar_releases[release]))
+                    self.conn =  sqlite3.connect(get_jaspardb_path(release_value))
                 except Error as e:
                     print(e)
             except KeyError:
-                print(f"JASPAR{release_year} is not available.")
+                print(f"{release} is not available. Available releases are:")
+                print(self.get_releases())
 
     def __str__(self):
         """Return a string represention of the JASPAR DB SQLite connection."""

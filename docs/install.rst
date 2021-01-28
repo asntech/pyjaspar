@@ -1,6 +1,6 @@
-==============
-How to Install
-==============
+===============
+How to Install?
+===============
 pyJASPAR is available on `PyPi <https://pypi.python.org/pypi/pyjaspar>`_, through `Bioconda <https://bioconda.github.io/recipes/pyjaspar/README.html>`_, and source code available on `GitHub <https://github.com/asntech/pyjaspar>`_. If you already have a working installation of Python, the easiest way to install the required Python modules is by installing pyJASPAR using ``pip``. 
 
 If you're setting up Python for the first time, we recommend to install it using the `Conda or Miniconda Python distribution <https://conda.io/docs/user-guide/install/index.html>`_. This comes with several helpful scientific and data processing libraries, and available for platforms including Windows, Mac OSX and Linux.
@@ -18,8 +18,8 @@ We highly recommend to install pyJASPAR using Conda, this will take care of the 
 
 .. note:: This will install all the dependencies and you are ready to use **pyJASPAR**.
 
-Install using `pip`
-===================
+Install using pip
+==================
 You can install pyJASPAR from PyPi using pip.
 
 .. code-block:: bash
