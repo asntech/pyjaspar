@@ -1,6 +1,6 @@
-=====================
-How to use pyJASPAR?
-=====================
+============
+How to use?
+============
 
 Once you have installed `pyjaspar`, you can load the module and connect to the latest release of JASPAR:
 
@@ -8,8 +8,8 @@ Once you have installed `pyjaspar`, you can load the module and connect to the l
 
     >>> from pyjaspar import jaspardb
 
-Connect to the JASPAR release
------------------------------
+Connect to the JASPAR
+----------------------
 Next step is to connect to the version of JASPAR you're interested by creating a jaspardb class object.
 For example here we're using the the JASPAR2018.
 

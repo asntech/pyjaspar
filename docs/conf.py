@@ -22,7 +22,7 @@ copyright = '2021, Aziz Khan'
 author = 'Aziz Khan'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0'
+release = 'v1.5.0'
 
 
 # -- General configuration ---------------------------------------------------

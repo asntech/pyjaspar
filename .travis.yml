@@ -23,3 +23,5 @@ install:
     - python setup.py sdist install --user
 
 # command to run tests
+script:
+  - python --version
