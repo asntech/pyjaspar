@@ -3,7 +3,7 @@ pyJASPAR
 
 	A serverless interface to Biopython to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
 
-.. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=master
+.. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=main
     :target: https://travis-ci.org/asntech/pyjaspar
 
 .. image:: https://img.shields.io/pypi/pyversions/pyjaspar.svg
@@ -34,7 +34,8 @@ pyJASPAR provides access to JASPAR database releases including:
     - `JASPAR2016 <http://jaspar2016.genereg.net>`_
     - `JASPAR2014 <http://jaspar2014.genereg.net>`_
 
-.. note:: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details. 
+
+**Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
 
 
 Documentation
@@ -114,7 +115,8 @@ Once you have installed pyjaspar, you can create jaspardb class object:
     >>> for motif in motifs:
             pass
 
-.. note:: Above methods return `Bio.motifs.jaspar.Motif` object. You can find more details `here <http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec262>`_ 
+**Note**: Above methods return `Bio.motifs.jaspar.Motif` object. You can find more details `here <http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec262>`_ 
+
 
 Find available releases
 =======================
