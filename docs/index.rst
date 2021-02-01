@@ -32,4 +32,4 @@ pyJASPAR Documentation
    how_to_use
    support
    cite
-   changelog
+   
