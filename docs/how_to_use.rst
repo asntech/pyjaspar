@@ -170,3 +170,25 @@ You can loop through these motifs and perform your analysis.
 	-
 	MA0528.2
 	MA0609.2
+
+Here is a list of meta-info `fetch_motifs` method takes as an arugment to filter the motifs.
+
+.. csv-table::
+   :header: "Argument", "Description"
+   :widths: 10, 80
+
+     "`matrix_id`","Takes precedence over all other selection criteria except 'all'.  Only motifs with the given JASPAR matrix ID(s) are returned. A matrix ID may be specified as just a base ID or full JASPAR IDs including version number. If only a base ID is provided for specific motif(s), then just the latest version of those motif(s) are returned unless 'all_versions' is also specified."
+	 "`collection`","Only motifs from the specified JASPAR collection(s) are returned. NOTE - if not specified, the collection defaults to CORE for all other selection criteria except 'all' and 'matrix_id'. To apply the other selection criteria across all JASPAR collections, explicitly set collection=None."
+	 "`tf_name`","Only motifs with the given name(s) are returned."
+	 "`tf_class`","Only motifs of the given TF class(es) are returned."
+	 "`tf_family`","Only motifs from the given TF families are returned."
+	 "`tax_group`","Only motifs belonging to the given taxonomic supergroups are returned (e.g. 'vertebrates', 'insects', 'nematodes' etc.)"
+	 "`species`","Only motifs derived from the given species are returned.  Species are specified as taxonomy IDs."
+	 "`data_type`","Only motifs generated with the given data type (e.g. ('ChIP-seq', 'PBM', 'SELEX' etc.) are returned."
+	 "`pazar_id`","Only motifs with the given PAZAR TF ID are returned."
+	 "`medline`","Only motifs with the given medline (PubmMed IDs) are returned."
+	 "`min_ic`","Only motifs whose profile matrices have at least this information content (specificty) are returned."
+	 "`min_length`","Only motifs whose profiles are of at least this length are returned."
+	 "`min_sites`","Only motifs compiled from at least these many binding sites are returned."
+	 "`all_versions`","Unless specified, just the latest version of motifs determined by the other selection criteria are returned. Otherwise all versions of the selected motifs are returned."
+	 "`all`","Takes precedent of all other selection criteria. Every motif is returned. If 'all_versions' is also specified, all versions of every motif are returned, otherwise just the latest version of every motif is returned."
