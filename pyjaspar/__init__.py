@@ -42,7 +42,7 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '1.5.0'
+__version__ = '1.5.5'
 
 
 import warnings
@@ -325,7 +325,7 @@ class jaspardb(object):
         Also checks if this combo exists or not.
         """
         cur = self.conn.cursor()
-        cur.execute("select id from MATRIX where BASE_id = ? and VERSION = ?", (base_id, version))
+        cur.execute("select id from MATRIX where BASE_id = ? and VERSION = ? COLLATE NOCASE", (base_id, version))
 
         row = cur.fetchone()
 
@@ -344,7 +344,7 @@ class jaspardb(object):
     def _fetch_motif_by_internal_id(self, int_id):
         """Fetch basic motif information (PRIVATE)."""
         cur = self.conn.cursor()
-        cur.execute("SELECT BASE_ID, VERSION, COLLECTION, NAME FROM MATRIX WHERE ID = ?", (int_id,))
+        cur.execute("SELECT BASE_ID, VERSION, COLLECTION, NAME FROM MATRIX WHERE ID = ? COLLATE NOCASE", (int_id,))
 
         row = cur.fetchone()
 
@@ -387,7 +387,7 @@ class jaspardb(object):
         motif.species = tax_ids
 
         # fetch protein accession numbers
-        cur.execute("select ACC FROM MATRIX_PROTEIN where id = ?", (int_id,))
+        cur.execute("select ACC FROM MATRIX_PROTEIN where id = ? COLLATE NOCASE", (int_id,))
         accs = []
         rows = cur.fetchall()
         for row in rows:
@@ -516,7 +516,7 @@ class jaspardb(object):
                 for id in matrix_id:
                     # ignore vesion here, this is a stupidity filter
                     (base_id, version) = jaspar.split_jaspar_id(id)
-                    cur.execute("select ID from MATRIX where BASE_ID = ?", (base_id,))
+                    cur.execute("select ID from MATRIX where BASE_ID = ? COLLATE NOCASE", (base_id,))
 
                     rows = cur.fetchall()
                     for row in rows:
@@ -546,12 +546,13 @@ class jaspardb(object):
             if isinstance(collection, list):
                 # Multiple collections passed in as a list
                 clause = "m.COLLECTION in ('"
-                clause = "".join([clause, "','".join(collection)])
+                clause = "".join([clause, "','".join([c.upper() for c in collection])])
                 clause = "".join([clause, "')"])
             else:
                 # A single collection - typical usage
-                clause = "m.COLLECTION = '%s'" % collection
-
+                clause = "m.COLLECTION = '%s'" % collection.upper()
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by MATRIX.NAME
@@ -564,7 +565,8 @@ class jaspardb(object):
             else:
                 # A single name
                 clause = "m.NAME = '%s'" % tf_name
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by MATRIX_SPECIES.TAX_ID
@@ -584,7 +586,8 @@ class jaspardb(object):
             else:
                 # A single tax ID
                 clause = "ms.TAX_ID = '%s'" % str(species)
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         """
@@ -623,7 +626,8 @@ class jaspardb(object):
             else:
                 # A single TF class
                 clause = "".join([clause, " and ma1.VAL = '%s' " % tf_class])
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by TF families (MATRIX_ANNOTATION.TAG="family")
@@ -640,7 +644,8 @@ class jaspardb(object):
             else:
                 # A single TF family
                 clause = "".join([clause, " and ma2.VAL = '%s' " % tf_family])
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by PAZAR TF ID(s) (MATRIX_ANNOTATION.TAG="pazar_tf_id")
@@ -657,7 +662,8 @@ class jaspardb(object):
             else:
                 # A single PAZAR ID
                 clause = "".join([" and ma3.VAL = '%s' " % pazar_id])
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by PubMed ID(s) (MATRIX_ANNOTATION.TAG="medline")
@@ -674,7 +680,8 @@ class jaspardb(object):
             else:
                 # A single PubMed ID
                 clause = "".join([" and ma4.VAL = '%s' " % medline])
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by data type(s) used to compile the matrix
@@ -692,7 +699,8 @@ class jaspardb(object):
             else:
                 # A single data type
                 clause = "".join([" and ma5.VAL = '%s' " % data_type])
-
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         # Select by taxonomic supergroup(s) (MATRIX_ANNOTATION.TAG="tax_group")
@@ -704,12 +712,13 @@ class jaspardb(object):
             if isinstance(tax_group, list):
                 # A list of tax IDs
                 clause = "".join([clause, " and ma6.VAL in ('"])
-                clause = "".join([clause, "','".join(tax_group)])
+                clause = "".join([clause, "','".join([tg.lower() for tg in tax_group])])
                 clause = "".join([clause, "')"])
             else:
                 # A single tax ID
-                clause = "".join([clause, " and ma6.VAL = '%s' " % tax_group])
-
+                clause = "".join([clause, " and ma6.VAL = '%s' " % tax_group.lower()])
+            ##SQLite is case sensitive therefore COLLATE NOCASE is set.
+            #clause = "%s COLLATE NOCASE" % clause
             where_clauses.append(clause)
 
         sql = "".join(["select distinct(m.ID) from ", ", ".join(tables)])
@@ -717,7 +726,9 @@ class jaspardb(object):
         if where_clauses:
             sql = "".join([sql, " where ", " and ".join(where_clauses)])
 
-        # print "sql = %s" % sql
+        ### SQLite is casesensitivitive
+        sql = "%s COLLATE NOCASE" % sql
+        #print(sql)
 
         cur.execute(sql)
         rows = cur.fetchall()
@@ -747,7 +758,7 @@ class jaspardb(object):
 
         cur.execute("select count(*) from MATRIX where "
                     "BASE_ID = (select BASE_ID from MATRIX where ID = ?) "
-                    "and VERSION > (select VERSION from MATRIX where ID = ?)",
+                    "and VERSION > (select VERSION from MATRIX where ID = ?) COLLATE NOCASE",
                     (int_id, int_id))
 
         row = cur.fetchone()
