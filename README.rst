@@ -3,7 +3,7 @@ pyJASPAR
 
     A Pythonic interface to JASPAR database
 
-A Biopython interface to query and access JASPAR motifs from different releases of JASPAR database using sqlite3.
+**pyJASPAR** uses *Biopython* and *SQLite3* to provide a serverless interface to `JASPAR database <http://jaspar.genereg.net>`_ to query and access TF motif profiles across various releases of JASPAR.
 
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4485857.svg
@@ -34,7 +34,7 @@ A Biopython interface to query and access JASPAR motifs from different releases 
     :target: https://pyjaspar.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-pyJASPAR provides access to JASPAR database releases including:
+pyJASPAR provides access to the following releases of JASPAR database:
     - `JASPAR2020 <http://jaspar2020.genereg.net>`_
     - `JASPAR2018 <http://jaspar2018.genereg.net>`_
     - `JASPAR2016 <http://jaspar2016.genereg.net>`_
