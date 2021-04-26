@@ -104,7 +104,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
     YY1
 
     #Fetch motifs by TF name
-    >>> motifs = jdb_obj.fetch_motif_by_name('CTCF')
+    >>> motifs = jdb_obj.fetch_motifs_by_name('CTCF')
     >>> print(len(motifs))
     2
 
