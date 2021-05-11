@@ -2,8 +2,9 @@
 How to cite?
 ============
 
-If you used pyJASPAR, please cite:
-	- Khan A. pyJASPAR: A serverless interface to Biopython to access JASPAR database (v1.5.0). Zenodo. 2021; doi: 10.5281/zenodo.4485857
+If you used **pyJASPAR**, please cite:
+
+	- Aziz Khan. pyJASPAR: A serverless interface to Biopython to access JASPAR database. (2021). doi:10.5281/zenodo.4509415
 
 And for the specific release of JASPAR database, please cite one of these:
 	

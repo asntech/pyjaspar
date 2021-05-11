@@ -11,7 +11,7 @@ Example, substitute the database release/version name::
 
     from pyjaspar import jaspardb
         
-    jdb_obj = jasqlite(release='JASPAR2020')
+    jdb_obj = jaspardb(release='JASPAR2020')
     motif = jdb_obj.fetch_motif_by_id('MA0095')
     print(motif)
     TF name YY1

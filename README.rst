@@ -1,13 +1,13 @@
 pyJASPAR
 --------
 
-    A Pythonic interface to JASPAR database
+    A Pythonic interface to JASPAR transcription factor motifs
 
 **pyJASPAR** uses *Biopython* and *SQLite3* to provide a serverless interface to `JASPAR database <http://jaspar.genereg.net>`_ to query and access TF motif profiles across various releases of JASPAR.
 
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4485857.svg
-   :target: https://doi.org/10.5281/zenodo.4485857
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4509415.svg
+   :target: https://doi.org/10.5281/zenodo.4509415
 
 .. image:: https://travis-ci.org/asntech/pyjaspar.svg?branch=main
     :target: https://travis-ci.org/asntech/pyjaspar
@@ -24,15 +24,9 @@ pyJASPAR
 .. image:: https://anaconda.org/bioconda/pyjaspar/badges/downloads.svg
     :target: https://bioconda.github.io/recipes/pyjaspar/README.html
 
-.. image:: https://anaconda.org/bioconda/pyjaspar/badges/installer/conda.svg
-    :target: https://conda.anaconda.org/bioconda
-
 .. image:: https://img.shields.io/github/issues/asntech/pyjaspar.svg
     :target: https://github.com/asntech/pyjaspar/issues
 
-.. image:: https://readthedocs.org/projects/pyjaspar/badge/?version=latest
-    :target: https://pyjaspar.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
 
 pyJASPAR provides access to the following releases of JASPAR database:
     - `JASPAR2020 <http://jaspar2020.genereg.net>`_
@@ -131,3 +125,21 @@ Find available releases
     >>> print(jdb_obj.get_releases())
     Available JASPAR releases are: ['JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
+
+Cite
+=====
+    - Aziz Khan. pyJASPAR: A serverless interface to Biopython to access JASPAR database. (2021). doi:10.5281/zenodo.4509415
+
+.. code-block:: bash
+
+    @software{aziz_khan_2021_4509415,
+      author       = {Aziz Khan},
+      title        = {{pyJASPAR: a Pythonic interface to JASPAR 
+                       transcription factor motifs}},
+      month        = feb,
+      year         = 2021,
+      publisher    = {Zenodo},
+      version      = {v1.5.5},
+      doi          = {10.5281/zenodo.4509415},
+      url          = {https://doi.org/10.5281/zenodo.4509415}
+    }
