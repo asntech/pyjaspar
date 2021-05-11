@@ -4,7 +4,7 @@ How to cite?
 
 If you used **pyJASPAR**, please cite:
 
-	- Aziz Khan. pyJASPAR: A serverless interface to Biopython to access JASPAR database. (2021). doi:10.5281/zenodo.4509415
+	- Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). doi:10.5281/zenodo.4509415
 
 And for the specific release of JASPAR database, please cite one of these:
 	
