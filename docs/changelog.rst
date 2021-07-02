@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Version 1.0.0
+Version 1.6.0
 -------------
-Released date:
+Released date: July 02, 2021
 
-Notes: 
+Notes: Both tf_family and tf_class are now string array.

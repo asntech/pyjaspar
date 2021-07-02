@@ -67,8 +67,8 @@ Printing the motif will all the associated meta-information stored in the JASPAR
     	TF name	YY1
 	Matrix ID	MA0095.2
 	Collection	CORE
-	TF class	C2H2 zinc finger factors
-	TF family	More than 3 adjacent zinc finger factors
+	TF class	['C2H2 zinc finger factors']
+	TF family	['More than 3 adjacent zinc finger factors']
 	Species	9606
 	Taxonomic group	vertebrates
 	Accession	['P25490']
@@ -108,8 +108,8 @@ You can use the `fetch_motifs_by_name` function to find motifs by TF name. This 
     	TF name	CTCF
 	Matrix ID	MA0139.1
 	Collection	CORE
-	TF class	C2H2 zinc finger factors
-	TF family	More than 3 adjacent zinc finger factors
+	TF class	['C2H2 zinc finger factors'
+	TF family	['More than 3 adjacent zinc finger factors']
 	Species	9606
 	Taxonomic group	vertebrates
 	Accession	['P49711']
@@ -126,8 +126,8 @@ You can use the `fetch_motifs_by_name` function to find motifs by TF name. This 
 	TF name	CTCF
 	Matrix ID	MA0531.1
 	Collection	CORE
-	TF class	C2H2 zinc finger factors
-	TF family	More than 3 adjacent zinc finger factors
+	TF class	['C2H2 zinc finger factors']
+	TF family	['More than 3 adjacent zinc finger factors']
 	Species	7227
 	Taxonomic group	insects
 	Accession	['Q9VS55']

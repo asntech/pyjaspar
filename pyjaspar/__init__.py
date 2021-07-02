@@ -17,8 +17,8 @@ Example, substitute the database release/version name::
     TF name YY1
     Matrix ID   MA0095.2
     Collection  CORE
-    TF class    C2H2 zinc finger factors
-    TF family   More than 3 adjacent zinc finger factors
+    TF class    ['C2H2 zinc finger factors']
+    TF family   ['More than 3 adjacent zinc finger factors']
     Species 9606
     Taxonomic group vertebrates
     Accession   ['P25490']
@@ -42,7 +42,7 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '1.5.5'
+__version__ = '1.6.0'
 
 
 import warnings
@@ -400,14 +400,18 @@ class jaspardb(object):
 
         # fetch remaining annotation as tags from the ANNOTATION table
         cur.execute("select TAG, VAL from MATRIX_ANNOTATION where id = ?", (int_id,))
+
+        #Since jaspar 2018 tf_family and tf_class are return as array
+        tf_family = []
+        tf_class = []
         rows = cur.fetchall()
         for row in rows:
             attr = row[0]
             val = row[1]
             if attr == "class":
-                motif.tf_class = val
+                tf_class.append(val)
             elif attr == "family":
-                motif.tf_family = val
+                tf_family.append(val)
             elif attr == "tax_group":
                 motif.tax_group = val
             elif attr == "type":
@@ -424,6 +428,9 @@ class jaspardb(object):
                 motif.tag(attr, val)
                 """
                 pass
+
+        motif.tf_family = tf_family
+        motif.tf_class = tf_class
 
         return motif
 
