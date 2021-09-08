@@ -48,7 +48,7 @@ You can find the available releases/version of JASPAR using `get_releases` metho
 .. code-block:: pycon
 
     >>> print(jdb_obj.get_releases())
-    ['JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
+    ['JASPAR2022', 'JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
 
 Get motif by using JASPAR ID

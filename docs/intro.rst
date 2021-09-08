@@ -9,6 +9,7 @@ pyJASPAR is a python module and a serverless interface to Biopython to query and
 
 Currently, pyJASPAR provides access to JASPAR database releases including:
 
+	- `JASPAR2022` - http://jaspar.genereg.net/
 	- `JASPAR2020` - http://jaspar2020.genereg.net/
 	- `JASPAR2018` - http://jaspar2018.genereg.net/
 	- `JASPAR2016` - http://jaspar2016.genereg.net/
