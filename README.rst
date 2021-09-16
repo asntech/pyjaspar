@@ -29,6 +29,7 @@ pyJASPAR
 
 
 pyJASPAR provides access to the following releases of JASPAR database:
+    - `JASPAR2022 <http://jaspar.genereg.net>`_
     - `JASPAR2020 <http://jaspar2020.genereg.net>`_
     - `JASPAR2018 <http://jaspar2018.genereg.net>`_
     - `JASPAR2016 <http://jaspar2016.genereg.net>`_
@@ -91,7 +92,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
 
     >>> from pyjaspar import jaspardb
     
-    #Connect the JASPAR2020 release object    
+    #Create the JASPAR2020 release object    
     >>> jdb_obj = jaspardb(release='JASPAR2020')
 
     #Fetch motif by ID
@@ -123,7 +124,7 @@ Find available releases
 .. code-block:: pycon
     
     >>> print(jdb_obj.get_releases())
-    Available JASPAR releases are: ['JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
+    ['JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
 
 Cite
@@ -134,12 +135,11 @@ Cite
 
     @software{aziz_khan_2021_4509415,
       author       = {Aziz Khan},
-      title        = {{pyJASPAR: a Pythonic interface to JASPAR 
-                       transcription factor motifs}},
+      title        = {{pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs}},
       month        = feb,
       year         = 2021,
       publisher    = {Zenodo},
-      version      = {v1.5.5},
+      version      = {v2.0.0},
       doi          = {10.5281/zenodo.4509415},
       url          = {https://doi.org/10.5281/zenodo.4509415}
     }
