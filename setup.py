@@ -29,6 +29,7 @@ CLASSIFIERS = [
 ]
 
 install_requires = [
+    'wheel',
     'biopython',
 ]
 
