@@ -42,7 +42,7 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '2.1.0'
+__version__ = '2.1.1'
 
 
 import warnings
