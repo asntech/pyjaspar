@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Version 3.0.0
+-------------
+Released date: September 24, 2023
+
+Notes: Added the 10th release of JASPAR (JASPAR2024) to the package.
+
+
 Version 2.0.0
 -------------
 Released date: September 08, 2021

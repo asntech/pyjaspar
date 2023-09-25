@@ -12,8 +12,8 @@ BSD License (see the file LICENSE included with the distribution).
 import os
 from distutils.core import setup
 from setuptools import find_packages
-from pyjaspar import __version__ as VERSION
-
+#from pyjaspar import __version__ as VERSION
+import codecs
 
 CLASSIFIERS = [
     'Intended Audience :: Developers',
@@ -33,6 +33,21 @@ install_requires = [
     'biopython',
 ]
 
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
 #def readme():
 #    with open('README.rst') as f:
 #        return f.read()
@@ -43,7 +58,7 @@ def readme(fname):
 setup(
     name="pyjaspar",
     description="A serverless interface to Biopython to access different versions of JASPAR database",
-    version=VERSION,
+    version=get_version("pyjaspar/__init__.py"),
     author="Aziz Khan",
     license='GPL',
     platforms='linux/unix',

@@ -42,8 +42,8 @@ Example, substitute the database release/version name::
         for motif in motifs:
             pass # do something with the motif
 """
-__version__ = '2.1.1'
 
+__version__ = '3.0.0'
 
 import warnings
 from Bio import BiopythonWarning
@@ -55,6 +55,7 @@ from Bio.motifs import jaspar
 from .utils import *
 
 jaspar_releases = {
+    'JASPAR2024': 'JASPAR2024.sqlite',
     'JASPAR2022': 'JASPAR2022.sqlite',
     'JASPAR2020': 'JASPAR2020.sqlite',
     'JASPAR2018': 'JASPAR2018.sqlite',
@@ -62,7 +63,7 @@ jaspar_releases = {
     'JASPAR2014': 'JASPAR2014.sqlite',
 }
 
-JASPAR_LATEST_RELEASE = "JASPAR2022"
+JASPAR_LATEST_RELEASE = "JASPAR2024"
 
 JASPAR_DFLT_COLLECTION = "CORE"
 
