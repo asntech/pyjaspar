@@ -29,12 +29,12 @@ pyJASPAR
 
 
 pyJASPAR provides access to the following releases of JASPAR database:
-    - `JASPAR2022 <http://jaspar.genereg.net>`_
-    - `JASPAR2020 <http://jaspar2020.genereg.net>`_
-    - `JASPAR2018 <http://jaspar2018.genereg.net>`_
-    - `JASPAR2016 <http://jaspar2016.genereg.net>`_
-    - `JASPAR2014 <http://jaspar2014.genereg.net>`_
-
+    - **JASPAR2024**
+    - **JASPAR2022**
+    - **JASPAR2020**
+    - **JASPAR2018**
+    - **JASPAR2016**
+    - **JASPAR2014**
 
 **Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
 
@@ -92,8 +92,8 @@ Once you have installed pyjaspar, you can create jaspardb class object:
 
     >>> from pyjaspar import jaspardb
     
-    #Create the JASPAR2020 release object    
-    >>> jdb_obj = jaspardb(release='JASPAR2020')
+    #Create the JASPAR2022 release object    
+    >>> jdb_obj = jaspardb(release='JASPAR2022')
 
     #Fetch motif by ID
     >>> motif = jdb_obj.fetch_motif_by_id('MA0095.2')
@@ -124,7 +124,7 @@ Find available releases
 .. code-block:: pycon
     
     >>> print(jdb_obj.get_releases())
-    ['JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
+    ['JASPAR2024','JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
 
 Cite
