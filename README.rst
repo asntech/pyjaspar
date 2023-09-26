@@ -28,13 +28,7 @@ pyJASPAR
     :target: https://github.com/asntech/pyjaspar/issues
 
 
-pyJASPAR provides access to the following releases of JASPAR database:
-    - **JASPAR2024**
-    - **JASPAR2022**
-    - **JASPAR2020**
-    - **JASPAR2018**
-    - **JASPAR2016**
-    - **JASPAR2014**
+pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
 
 **Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
 
