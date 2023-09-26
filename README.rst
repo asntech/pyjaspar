@@ -87,7 +87,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
     >>> from pyjaspar import jaspardb
     
     #Create the JASPAR2022 release object    
-    >>> jdb_obj = jaspardb(release='JASPAR2022')
+    >>> jdb_obj = jaspardb(release='JASPAR2024')
 
     #Fetch motif by ID
     >>> motif = jdb_obj.fetch_motif_by_id('MA0095.2')
@@ -95,17 +95,24 @@ Once you have installed pyjaspar, you can create jaspardb class object:
     YY1
 
     #Fetch motifs by TF name
-    >>> motifs = jdb_obj.fetch_motifs_by_name('CTCF')
+    >>> motifs = jdb_obj.fetch_motifs_by_name('KFL4')
     >>> print(len(motifs))
-    2
+    1
 
-    #Get CORE vertebrates collection
+    # Get a dictionary of frequency count matrics
+    >>> print(motifs[0].counts)
+    {'A': [2465.0, 2105.0, 7021.0, 1173.0, 45602.0, 852.0, 1617.0, 1202.0],
+    'C': [49209.0, 47865.0, 45405.0, 52875.0, 161.0, 52366.0, 51112.0, 51045.0],
+    'G': [1583.0, 1214.0, 1422.0, 793.0, 6598.0, 1470.0, 1870.0, 1005.0],
+    'T': [2560.0, 4633.0, 1969.0, 976.0, 3456.0, 1129.0, 1218.0, 2565.0]}
+
+    #Get CORE vertebrates non-redundent collection
     >>> motifs = jdb_obj.fetch_motifs(
-        collection = 'CORE',
-        tax_group = ['vertebrates']
-        )
+            collection = ['CORE'],
+            tax_group = ['Vertebrates'],
+            all_versions = False)
     >>> print(len(motifs))
-    746
+    879
     ## loop through the motifs list and perform analysis
     >>> for motif in motifs:
             pass
