@@ -43,7 +43,7 @@ Example, substitute the database release/version name::
             pass # do something with the motif
 """
 
-__version__ = '3.0.0'
+__version__ = '3.1.0'
 
 import warnings
 from Bio import BiopythonWarning

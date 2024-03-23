@@ -1,2 +1,3 @@
 wheel
 biopython
+rich-click

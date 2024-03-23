@@ -71,6 +71,9 @@ setup(
     packages=['pyjaspar',
         'pyjaspar.data'
         ],
+    
+    scripts=['pyjaspar/pyjaspar',
+             ],
 
     package_data={'pyjaspar': ['pyjaspar/data/*.sqlite',]},
     include_package_data=True,

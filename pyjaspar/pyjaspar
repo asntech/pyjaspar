@@ -1,0 +1,334 @@
+#!/usr/bin/env python
+"""
+pyJASPAR: pyJASPAR: A Pythonic interface to JASPAR transcription factor motifs
+Created on March 21, 2024
+@author: <Aziz Khan>azizk@stanford.edu
+For more details please check the documentation at https://github.com/asntech/pyjaspar
+"""
+
+#import click
+import rich_click as click
+import json
+#from Bio.motifs import jaspar
+from pyjaspar import jaspardb
+from pyjaspar import JASPAR_LATEST_RELEASE, JASPAR_DFLT_COLLECTION, jaspar_releases
+
+from pyjaspar.utils import dict_list_to_tsv
+
+click.rich_click.COMMAND_GROUPS = {
+    "pyjaspar": [
+        {
+            "name": "Motif retrieval commands",
+            "commands": ["motifs", "motif-by-id","motifs-by-name","metadata"],
+        },
+        {
+            "name": "Motif analysis commands",
+            "commands": ["infer", "scan", "align"],
+        },
+        {
+            "name": "General commands",
+            "commands": ["releases","cite"],
+        },
+    ]
+}
+
+TAXONOMIC_GROUPS = ["Fungi","Insects","Nematodes","Plants","Urochordates","Vertebrates"]
+
+@click.group()
+@click.version_option(package_name="pyjaspar", prog_name="pyJASPAR")
+def cli():
+    '''
+    pyJASPAR: A Pythonic interface to JASPAR transcription factor motifs
+
+    Author: Aziz Khan <azizk@stanford.edu>
+
+    https://github.com/asntech/pyjaspar 
+    '''
+    pass
+
+jaspar_releases_years = [item.replace("JASPAR", "") for item in jaspar_releases.keys()]
+jaspar_latest_release_year = JASPAR_LATEST_RELEASE.replace("JASPAR", "").strip()
+
+def print_matrix_data(motifs, output_file=None, motif_format="jaspar", matrix_type="pfm"):
+    '''
+    Take a Motif object and return a list of dictionaries
+
+    motifs: A Motif object
+
+    return: a list of dictionaries
+    '''
+    
+    motifs_ouput = ""
+    for motif in motifs:
+        motifs_ouput += f"{str(motif.format(motif_format))}"    
+    if output_file:
+        with open(output_file, 'w') as file:
+            file.write(motifs_ouput) 
+    else:
+        click.echo(click.style(motifs_ouput, fg='green'))
+
+def print_metadata(motifs, dict_keys, output_file=None, format="tsv"):
+    '''
+    Take a Motif object and return a list of dictionaries
+
+    motifs: A Motif object
+    dict_keys: A list of keys
+
+    return: a list of dictionaries
+    '''
+    
+    motifs_list = []
+    for motif in motifs:
+        motif_dict = vars(motif)
+        motif_dict = {key: motif_dict[key] for key in dict_keys if key in motif_dict}
+        motifs_list.append(motif_dict)
+    
+    if format == "json":
+        motifs_dict = {
+            "count": len(motifs_list),
+            "results": motifs_list
+        }
+        motifs_ouput = json.dumps(motifs_dict, indent=2)    
+    else:
+        motifs_ouput = dict_list_to_tsv(motifs_list, dict_keys)
+    if output_file:
+        with open(output_file, 'w') as file:
+            file.write(motifs_ouput) 
+    else:
+        click.echo(click.style(motifs_ouput, fg='green'))
+
+
+@cli.command()
+@click.argument('id')
+@click.option('-r','--release', 
+              default=jaspar_latest_release_year, 
+              show_default=True,
+              required=True,
+              type=click.Choice(jaspar_releases_years, case_sensitive=False),
+              help='JASPAR release')
+@click.option('--motif-format', default="jaspar", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["pfm","jaspar","transfac"], case_sensitive=False),
+              help='Motif output format')
+@click.option('--metadata', is_flag=True, default=False, help='Return metadata for motif')
+@click.option('--format', default="tsv", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["json","tsv"], case_sensitive=False),
+              help='Output format')
+def motif_by_id(id, release, motif_format, metadata, format):
+    '''
+    Get motif matrix by JASPAR ID
+    '''
+    jdb_obj = jaspardb(f"JASPAR{release}")
+    motif = jdb_obj.fetch_motif_by_id(id)
+    
+    if metadata:
+        # only keep the below listed keys and get a list of dictionaries
+        dict_keys = ['matrix_id', 'name', 'collection', 'length', 'tf_class', 'tf_family', 'species', 'tax_group', 'acc', 'data_type', 'medline', 'pazar_id', 'comment']
+        print_metadata(motifs=motif, dict_keys=dict_keys, format=format)
+    else:
+        print_matrix_data(motifs=motif, motif_format=motif_format)
+
+@cli.command()
+@click.option('-n','--tf-name', help='TF name')
+@click.option('-r','--release', 
+              default=jaspar_latest_release_year, 
+              show_default=True,
+              required=True,
+              type=click.Choice(jaspar_releases_years, case_sensitive=False),
+              help='JASPAR release')
+@click.option('--motif-format', default="jaspar", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["pfm","jaspar","transfac"], case_sensitive=False),
+              help='Motif output format')
+@click.option('--metadata', is_flag=True, default=False, help='Return metadata for motif')
+@click.option('--format', default="tsv", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["json","tsv"], case_sensitive=False),
+              help='Output format')
+def motifs_by_name(tf_name, release, metadata, motif_format, format):
+    '''
+    Get motif(s) by TF Name
+    '''
+   
+    jdb_obj = jaspardb(f"JASPAR{release}")
+    
+    motifs = jdb_obj.fetch_motifs_by_name(tf_name)
+
+    if metadata:
+        # only keep the below listed keys and get a list of dictionaries
+        dict_keys = ['matrix_id', 'name', 'collection', 'length', 'tf_class', 'tf_family', 'species', 'tax_group', 'acc', 'data_type', 'medline', 'pazar_id', 'comment']
+        print_metadata(motifs=motifs, dict_keys=dict_keys, format=format)
+    else:
+        print_matrix_data(motifs=motifs, motif_format=motif_format)
+
+@cli.command()
+@click.option('-c','--collection', 
+              default=JASPAR_DFLT_COLLECTION, 
+              show_default=True,
+              #required=True,
+              help='JASPAR collection(s)')
+@click.option('-r','--release', 
+              default=jaspar_latest_release_year, 
+              show_default=True,
+              #required=True,
+              type=click.Choice(jaspar_releases_years, case_sensitive=False),
+              help='JASPAR release')
+@click.option('--tax-group',
+              show_default=True,
+              #required=True,
+              type=click.Choice(TAXONOMIC_GROUPS, case_sensitive=False),
+              help='Taxonomic supergroup(s)')
+@click.option('--species', help='Species (taxonomy IDs)')
+@click.option('--format', default="tsv", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["json","tsv"], case_sensitive=False),
+              help='Output format')
+@click.option('-o','--output-file', help='File name with path to save the output instead ot stdout')
+@click.option('--redundant', is_flag=True, show_default=True, help='Return all versions (redundant) of motifs')
+
+def metadata(collection, release, species, tax_group, redundant, format, output_file):
+    '''
+    Get metadata for motif(s)
+    '''
+
+    # create database connection and fetch the motifs
+    jdb_obj = jaspardb(f"JASPAR{release}")
+    motifs = jdb_obj.fetch_motifs(collection=collection, tax_group=tax_group, species=species, all_versions=redundant)
+    
+    # only keep the below listed keys and get a list of dictionaries
+    dict_keys = ['matrix_id', 'name', 'collection', 'length', 'tf_class', 'tf_family', 'species', 'tax_group', 'acc', 'data_type', 'medline', 'pazar_id', 'comment']
+    print_metadata(motifs=motifs, dict_keys=dict_keys, output_file=output_file, format=format)
+    
+@cli.command()
+@click.option('-r','--release', 
+              default=jaspar_latest_release_year, 
+              show_default=True,
+              required=True,
+              type=click.Choice(jaspar_releases_years, case_sensitive=False),
+              help='JASPAR release')
+
+@click.option('-c','--collection', 
+              default=JASPAR_DFLT_COLLECTION, 
+              show_default=True,
+              required=True,
+              help='JASPAR collection(s)')
+@click.option('-n','--tf-name', help='TF name')
+@click.option('--tf-class', help='TF class(es)')
+@click.option('--tf-family', help='TF family(ies)')
+@click.option('--matrix-id', help='JASPAR matrix ID(s)')
+@click.option('--tax-group',
+              show_default=True,
+              #required=True,
+              type=click.Choice(TAXONOMIC_GROUPS, case_sensitive=False),
+              help='Taxonomic supergroup(s)')
+@click.option('--species', help='Species (taxonomy IDs)')
+@click.option('--pazar-id', help='PAZAR TF ID(s)')
+@click.option('--data-type', help='Data type(s)')
+@click.option('--medline', help='Medline (Pubmed IDs)')
+@click.option('--min-ic', type=int, show_default=True, help='Minimum information content')
+@click.option('--min-length', type=int, show_default=True, help='Minimum motif length')
+@click.option('--min-sites', type=int, show_default=True, help='Minimum binding sites')
+@click.option('-o','--output-file', help='File name with path to save the output instead ot stdout')
+@click.option('--motif-format', default="jaspar", 
+              show_default=True,
+              #required=True,
+              type=click.Choice(["pfm","jaspar","transfac"], case_sensitive=False),
+              help='Motif output format')
+#@click.option('--matrix-type', default="pfm", show_default=True,
+#              type=click.Choice(["pfm","pwm","pssm"], case_sensitive=False),
+#              help='Matrix type')
+@click.option('--redundant', is_flag=True, show_default=True, help='Return all versions (redundant) of motifs')
+
+def motifs(release, collection, tf_name, tf_class, tf_family, matrix_id, tax_group, species,
+          pazar_id, data_type, medline, min_ic, min_length, min_sites, redundant, motif_format, output_file):
+    '''
+    Get JASPAR motifs in different formats
+    '''
+    
+    jdb_obj = jaspardb(f"JASPAR{release}")
+    
+    motifs = jdb_obj.fetch_motifs(
+        collection=collection, tf_name=tf_name, tf_class=tf_class, tf_family=tf_family,
+        matrix_id=matrix_id, tax_group=tax_group, species=species, pazar_id=pazar_id,
+        data_type=data_type, medline=medline, min_ic=min_ic, min_length=min_length,
+        min_sites=min_sites, all_versions=redundant
+    )
+    
+    # parse the motifs and get output
+    print_matrix_data(motifs=motifs, output_file=output_file, motif_format=motif_format)
+       
+@cli.command()
+@click.option('-l','--latest', is_flag=True, default=False, help='Show the latest(default) release')
+def releases(latest):
+    '''
+    Get available JASPAR releases
+    '''
+    jdb_obj = jaspardb(JASPAR_LATEST_RELEASE)
+
+    if latest:
+        click.echo(JASPAR_LATEST_RELEASE)
+    else:
+        releases = jdb_obj.get_releases()
+        for release in releases:
+            click.echo(release)
+
+@cli.command()
+@click.option('-r','--release', 
+              default=JASPAR_LATEST_RELEASE, 
+              show_default=True,
+              type=click.Choice(jaspar_releases.keys(), case_sensitive=False),
+              help='JASPAR release')
+@click.option('--show-all', is_flag=True, show_default=True, help='Show citations for all releases.')
+def cite(release, show_all):
+    '''
+    Cite the correct release of JASPAR
+    '''
+    
+    if show_all:
+        click.echo(click.style(
+            f"Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R, Castro-Mondragon JA, Ferenc K, Kumar V, Lemma RB, Lucas J, Chèneby J, Baranasic D, " 
+            f"Khan A, Fornes O, Gundersen S, Johansen M, Hovig E, Lenhard B, Sandelin A, Wasserman WW, Parcy F, Mathelier A. "
+            f"JASPAR 2024: 20th anniversary of the open-access database of transcription factor binding profiles. "
+            f"Nucleic Acids Res. 2024 Jan 5;52(D1):D174–D182."
+       , fg='green'))
+    else:
+        click.echo(click.style(
+            f"Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R, Castro-Mondragon JA, Ferenc K, Kumar V, Lemma RB, Lucas J, Chèneby J, Baranasic D, " 
+            f"Khan A, Fornes O, Gundersen S, Johansen M, Hovig E, Lenhard B, Sandelin A, Wasserman WW, Parcy F, Mathelier A. "
+            f"JASPAR 2024: 20th anniversary of the open-access database of transcription factor binding profiles. "
+            f"Nucleic Acids Res. 2024 Jan 5;52(D1):D174–D182."
+       , fg='green'))
+
+@cli.command()
+def infer():
+    '''
+    Infer motifs based on fasta sequence
+    '''
+    # Add other commands as needed
+    click.echo("This is another command.")
+
+@cli.command()
+def scan():
+    '''
+    Input a (FASTA-formatted) sequence to scan with selected matrix models. 
+    '''
+    # Add other commands as needed
+    click.echo("This is another command.")
+
+@cli.command()
+def align():
+    '''
+    Align a custom matrix to JASPAR
+    '''
+    # Add other commands as needed
+    click.echo("This is another command.")
+
+
+if __name__ == '__main__':
+    cli()
