@@ -5,6 +5,8 @@ pyJASPAR
 
 **pyJASPAR** uses *Biopython* and *SQLite3* to provide a serverless interface to `JASPAR database <http://jaspar.genereg.net>`_ to query and access TF motif profiles across various releases of JASPAR.
 
+**Note**: The latest release of JASPAR database is *JASPAR2026* is available for peer-review purpose via GitHub only. It will be made public after the official release of JASPAR2026 database.
+
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4509415.svg
    :target: https://doi.org/10.5281/zenodo.4509415
@@ -31,6 +33,7 @@ pyJASPAR
 pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2026*, *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
 
 **Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
+
 
 
 Documentation
@@ -86,7 +89,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
 
     >>> from pyjaspar import jaspardb
     
-    #Create the JASPAR2022 release object    
+    #Create the JASPAR2024 release object    
     >>> jdb_obj = jaspardb(release='JASPAR2026')
 
     #Fetch motif by ID
