@@ -5,9 +5,6 @@ pyJASPAR
 
 **pyJASPAR** uses *Biopython* and *SQLite3* to provide a serverless interface to `JASPAR database <http://jaspar.genereg.net>`_ to query and access TF motif profiles across various releases of JASPAR.
 
-**Note**: The latest release of JASPAR database is *JASPAR2026* is available for peer-review purpose via GitHub only. It will be made public after the official release of JASPAR2026 database.
-
-
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4509415.svg
    :target: https://doi.org/10.5281/zenodo.4509415
 
@@ -44,6 +41,9 @@ Documentation
 
 Installation
 ------------
+
+**Note**: The *JASPAR2026* release is available for peer-review purpose via GitHub only. It will be made public after the official release of JASPAR2026 database.
+
 
 Quick installation using conda
 ================================
