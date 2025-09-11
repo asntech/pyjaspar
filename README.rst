@@ -130,7 +130,7 @@ Find available releases
 
 Cite
 =====
-    - Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). doi:10.5281/zenodo.4509415
+    - Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). doi:10.5281/zenodo.4485856
 
 .. code-block:: bash
 
@@ -140,7 +140,7 @@ Cite
       month        = feb,
       year         = 2021,
       publisher    = {Zenodo},
-      version      = {v2.0.0},
-      doi          = {10.5281/zenodo.4509415},
-      url          = {https://doi.org/10.5281/zenodo.4509415}
+      version      = {v4.0.0},
+      doi          = {10.5281/zenodo.4485856},
+      url          = {https://doi.org/10.5281/zenodo.4485856}
     }
