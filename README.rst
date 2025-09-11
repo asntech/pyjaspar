@@ -89,7 +89,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
 
     >>> from pyjaspar import jaspardb
     
-    #Create the JASPAR2024 release object    
+    #Create the JASPAR2026 release object    
     >>> jdb_obj = jaspardb(release='JASPAR2026')
 
     #Fetch motif by ID
