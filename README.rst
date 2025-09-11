@@ -28,7 +28,7 @@ pyJASPAR
     :target: https://github.com/asntech/pyjaspar/issues
 
 
-pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
+pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2026*, *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
 
 **Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
 
@@ -87,7 +87,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
     >>> from pyjaspar import jaspardb
     
     #Create the JASPAR2022 release object    
-    >>> jdb_obj = jaspardb(release='JASPAR2024')
+    >>> jdb_obj = jaspardb(release='JASPAR2026')
 
     #Fetch motif by ID
     >>> motif = jdb_obj.fetch_motif_by_id('MA0095.2')
@@ -112,7 +112,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
             tax_group = ['Vertebrates'],
             all_versions = False)
     >>> print(len(motifs))
-    879
+    1019
     ## loop through the motifs list and perform analysis
     >>> for motif in motifs:
             pass
@@ -125,7 +125,7 @@ Find available releases
 .. code-block:: pycon
     
     >>> print(jdb_obj.get_releases())
-    ['JASPAR2024','JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
+    ['JASPAR2026', 'JASPAR2024','JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
 
 Cite
