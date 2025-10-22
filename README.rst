@@ -5,7 +5,6 @@ pyJASPAR
 
 **pyJASPAR** uses *Biopython* and *SQLite3* to provide a serverless interface to `JASPAR database <http://jaspar.genereg.net>`_ to query and access TF motif profiles across various releases of JASPAR.
 
-
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4509415.svg
    :target: https://doi.org/10.5281/zenodo.4509415
 
@@ -28,9 +27,10 @@ pyJASPAR
     :target: https://github.com/asntech/pyjaspar/issues
 
 
-pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
+pyJASPAR provides access to the following releases of JASPAR database: *JASPAR2026*, *JASPAR2024*, *JASPAR2022*, *JASPAR2020*, *JASPAR2018*, *JASPAR2016*, *JASPAR2014*.
 
 **Note**: This is a serverless SQLite wrapper around the Biopython JASPAR module `Bio.motifs.jaspar.db` which requires JASPAR MySQL database sever connection details.
+
 
 
 Documentation
@@ -41,6 +41,9 @@ Documentation
 
 Installation
 ------------
+
+**Note**: The *JASPAR2026* release is available for peer-review purpose via GitHub only. It will be made public after the official release of JASPAR2026 database.
+
 
 Quick installation using conda
 ================================
@@ -86,8 +89,8 @@ Once you have installed pyjaspar, you can create jaspardb class object:
 
     >>> from pyjaspar import jaspardb
     
-    #Create the JASPAR2022 release object    
-    >>> jdb_obj = jaspardb(release='JASPAR2024')
+    #Create the JASPAR2026 release object    
+    >>> jdb_obj = jaspardb(release='JASPAR2026')
 
     #Fetch motif by ID
     >>> motif = jdb_obj.fetch_motif_by_id('MA0095.2')
@@ -112,7 +115,7 @@ Once you have installed pyjaspar, you can create jaspardb class object:
             tax_group = ['Vertebrates'],
             all_versions = False)
     >>> print(len(motifs))
-    879
+    1019
     ## loop through the motifs list and perform analysis
     >>> for motif in motifs:
             pass
@@ -125,12 +128,12 @@ Find available releases
 .. code-block:: pycon
     
     >>> print(jdb_obj.get_releases())
-    ['JASPAR2024','JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
+    ['JASPAR2026', 'JASPAR2024','JASPAR2022','JASPAR2020', 'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 
 
 Cite
 =====
-    - Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). doi:10.5281/zenodo.4509415
+    - Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). Zenodo, doi:10.5281/zenodo.4485856
 
 .. code-block:: bash
 
@@ -140,7 +143,7 @@ Cite
       month        = feb,
       year         = 2021,
       publisher    = {Zenodo},
-      version      = {v2.0.0},
-      doi          = {10.5281/zenodo.4509415},
-      url          = {https://doi.org/10.5281/zenodo.4509415}
+      version      = {v4.0.0},
+      doi          = {10.5281/zenodo.4485856},
+      url          = {https://doi.org/10.5281/zenodo.4485856}
     }

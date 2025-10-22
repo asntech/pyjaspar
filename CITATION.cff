@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+
+message: "If you use this software, please cite it using the following reference."
+title: "pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs"
+date-released: "2021-02-01"
+authors:
+  - family-names: "Khan"
+    given-names: "Aziz"
+    orcid: "https://orcid.org/0000-0002-6459-6224"
+version: 4.0.0
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.4509415"
