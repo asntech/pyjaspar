@@ -2,11 +2,10 @@
 
 ## v5.0.0
 
-Major release with new architecture, features, and JASPAR 2026 support.
+Major release with new architecture, features, and JASPAR 2026 DL support.
 
 ### New features
 
-- **JASPAR 2026 support** -- latest release with updated motif profiles
 - **Deep Learning (DL) collection** -- access BPNet-derived motif profiles, models, and patterns via `jdb.dl.*`
 - **Analysis tools** -- motif scanning, similarity metrics, and enrichment analysis
 - **CLI** -- full command-line interface with rich-click for motif retrieval, analysis, and DL queries

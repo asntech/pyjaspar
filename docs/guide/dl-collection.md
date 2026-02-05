@@ -1,9 +1,7 @@
 # Deep Learning (DL) Collection
 
 JASPAR 2026 introduces a Deep Learning collection derived from BPNet models trained on
-ENCODE TF ChIP-seq data ([Rauluseviciute et al., NAR 2024](https://doi.org/10.1093/nar/gkad1059)).
-
-Install with `pip install pyjaspar[dl]` (adds numpy).
+ENCODE TF ChIP-seq data.
 
 ## Entity types
 
