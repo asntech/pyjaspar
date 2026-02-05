@@ -1,0 +1,85 @@
+site_name: pyJASPAR
+site_url: https://asntech.github.io/pyjaspar
+site_description: A Pythonic interface to JASPAR transcription factor motifs
+site_author: Aziz Khan
+
+repo_url: https://github.com/asntech/pyjaspar
+repo_name: asntech/pyjaspar
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            docstring_style: google
+            members_order: source
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - User Guide:
+    - Core API: guide/core-api.md
+    - Analysis Tools: guide/analysis.md
+    - DL Collection: guide/dl-collection.md
+    - CLI Reference: guide/cli.md
+  - API Reference:
+    - pyjaspar: api/core.md
+    - pyjaspar.analysis: api/analysis.md
+    - pyjaspar.dl: api/dl.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
+  - Citation: citation.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/asntech/pyjaspar
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pyjaspar/

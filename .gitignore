@@ -40,8 +40,9 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 
-# Sphinx documentation
+# Documentation build
 docs/_build/
+site/
 
 # PyBuilder
 .pybuilder/

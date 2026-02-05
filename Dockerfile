@@ -1,0 +1,11 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install --no-cache-dir ".[all]" && \
+    rm -rf /app/*
+
+ENTRYPOINT ["pyjaspar"]
+CMD ["--help"]

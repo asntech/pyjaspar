@@ -1,0 +1,14 @@
+.git/
+.github/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+*.ipynb
+docs/
+tests/
+site/
+*.egg-info/
+__pycache__/
+.DS_Store
+.env
