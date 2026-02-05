@@ -15,26 +15,18 @@ Supported releases: **JASPAR2026**, JASPAR2024, JASPAR2022, JASPAR2020, JASPAR20
 ## Installation
 
 ```bash
-# Core library
 pip install pyjaspar
-
-# With CLI
-pip install pyjaspar[cli]
-
-# With Deep Learning (DL) collection support (JASPAR2026)
-pip install pyjaspar[dl]
-
-# With analysis tools (similarity, scanning, enrichment)
-pip install pyjaspar[analysis]
-
-# Everything
-pip install pyjaspar[all]
 ```
 
-Or via conda:
+Or via conda/mamba:
 
 ```bash
+#conda
 conda install -c bioconda pyjaspar
+
+#mamba
+conda install -c bioconda pyjaspar
+
 ```
 
 Or via Docker:
@@ -49,7 +41,7 @@ Requires Python >= 3.10. Full documentation at [asntech.github.io/pyjaspar](http
 ## Quick Start — Python API
 
 ```python
-from pyjaspar import JasparDB
+from pyjaspar import JasparDB # jaspardb shoudl also work (<v5.0.0)
 
 # Connect to the latest release (JASPAR2026)
 jdb = JasparDB()
@@ -119,7 +111,7 @@ pyjaspar enrichment -fg foreground.fasta -bg background.fasta --motif-ids MA0001
 
 ## Analysis Tools
 
-Install with `pip install pyjaspar[analysis]` (adds numpy, scipy).
+pyJASPAR provides few analysis tools, which are in development.
 
 ### Motif similarity
 
@@ -267,6 +259,3 @@ ruff format src/ tests/
 
 Aziz Khan. pyJASPAR: a Pythonic interface to JASPAR transcription factor motifs. (2021). Zenodo, doi:10.5281/zenodo.4485856
 
-## License
-
-MIT
