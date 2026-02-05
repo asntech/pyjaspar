@@ -8,7 +8,7 @@
 [![Bioconda](https://anaconda.org/bioconda/pyjaspar/badges/version.svg)](https://anaconda.org/bioconda/pyjaspar)
 [![Issues](https://img.shields.io/github/issues/asntech/pyjaspar.svg)](https://github.com/asntech/pyjaspar/issues)
 
-**pyJASPAR** uses BioPython and SQLite3 to provide a serverless interface to the [JASPAR database](http://jaspar.genereg.net) for querying TF motif profiles across multiple releases.
+**pyJASPAR** uses BioPython and SQLite3 to provide a serverless interface to the [JASPAR database](https://jaspar.elixir.no/) for querying TF motif profiles across multiple releases.
 
 Supported releases: **JASPAR2026**, JASPAR2024, JASPAR2022, JASPAR2020, JASPAR2018, JASPAR2016, JASPAR2014.
 
