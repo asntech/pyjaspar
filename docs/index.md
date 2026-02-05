@@ -15,7 +15,7 @@ Supported releases: **JASPAR2026**, JASPAR2024, JASPAR2022, JASPAR2020, JASPAR20
 ## Quick Install
 
 ```bash
-pip install pyjaspar[all]
+pip install pyjaspar
 ```
 
 ## Features
