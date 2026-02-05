@@ -9,16 +9,8 @@ If you use pyJASPAR in your research, please cite:
 
 ## JASPAR database
 
-Please also cite the JASPAR database:
+Please also cite the release of the JASPAR database you've used: https://jaspar.elixir.no/faq/
 
-> Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R, Castro-Mondragon JA,
-> Ferenc K, Kumar V, Lemma RB, Lucas J, Cheneby J, Baranasic D,
-> Khan A, Fornes O, Gundersen S, Johansen M, Hovig E, Lenhard B,
-> Sandelin A, Wasserman WW, Parcy F, Mathelier A.
-> JASPAR 2024: 20th anniversary of the open-access database of
-> transcription factor binding profiles.
-> *Nucleic Acids Res.* 2024 Jan 5;52(D1):D174-D182.
-> doi:[10.1093/nar/gkad1059](https://doi.org/10.1093/nar/gkad1059)
 
 ## BibTeX
 

@@ -1,6 +1,5 @@
 # CLI Reference
 
-Install with `pip install pyjaspar[cli]`. For analysis commands, also install `pip install pyjaspar[analysis]`.
 
 ## Motif retrieval
 
