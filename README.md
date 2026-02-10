@@ -139,9 +139,13 @@ from pyjaspar.analysis import scan_sequence
 jdb = JasparDB()
 motif = jdb.fetch_motifs_by_name("CTCF")[0]
 
+# Built-in BioPython PSSM scanner (default)
 hits = scan_sequence("ACGTACGTACGTACGT" * 10, motif, threshold=0.7)
 for hit in hits:
     print(f"Position {hit.position} ({hit.strand}): score={hit.score:.2f}")
+
+# Use FIMO engine (requires: pip install memelite)
+hits = scan_sequence("ACGT...", motif, threshold=0.7, engine="fimo")
 ```
 
 ### Enrichment analysis
@@ -166,7 +170,7 @@ for r in results:
 ## Deep Learning (DL) Collection
 
 JASPAR 2026 introduces a Deep Learning collection derived from BPNet models trained on
-ENCODE TF ChIP-seq data ([Rauluseviciute et al., NAR 2024](https://doi.org/10.1093/nar/gkad1059)).
+ENCODE TF ChIP-seq data.
 
 Install with `pip install pyjaspar[dl]` (adds numpy).
 
