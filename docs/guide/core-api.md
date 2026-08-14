@@ -108,6 +108,7 @@ print(motif.name)        # YY1
 # Annotations
 print(motif.collection)  # CORE
 print(motif.species)     # ['9606']
+print(motif.species_name) # ['Homo sapiens']
 print(motif.tf_class)    # ['C2H2 zinc finger factors']
 print(motif.tf_family)   # ['More than 3 adjacent zinc fingers']
 print(motif.tax_group)   # vertebrates
