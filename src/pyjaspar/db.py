@@ -322,6 +322,7 @@ class JasparDB:
         # Fetch species
         cur.execute("SELECT TAX_ID FROM MATRIX_SPECIES WHERE ID = ?", (int_id,))
         motif.species = [row[0] for row in cur.fetchall()]
+        motif.species_name = self._resolve_species_names(motif.species)
 
         # Fetch protein accession numbers
         cur.execute(
@@ -357,6 +358,21 @@ class JasparDB:
         motif.tf_class = tf_class
 
         return motif
+
+    def _resolve_species_names(self, tax_ids: list[str]) -> list[str]:
+        """Resolve taxonomy IDs to species names using the bundled TAX table."""
+        if not tax_ids:
+            return []
+
+        cur = self._conn.cursor()
+        placeholders = ", ".join("?" for _ in tax_ids)
+        cur.execute(
+            f"SELECT TAX_ID, SPECIES FROM TAX WHERE TAX_ID IN ({placeholders})",
+            tax_ids,
+        )
+        names_by_tax_id = {str(row[0]): row[1] for row in cur.fetchall()}
+
+        return [names_by_tax_id.get(tax_id, tax_id) for tax_id in tax_ids]
 
     def _fetch_counts_matrix(self, int_id: int) -> GenericPositionMatrix:
         """Fetch the counts matrix from the JASPAR DB by internal ID."""

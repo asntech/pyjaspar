@@ -58,6 +58,11 @@ def test_fetch_motif_by_id_returns_motif(jdb_2026):
     assert isinstance(motif, Motif)
 
 
+def test_fetch_motif_by_id_resolves_species_name(sample_motif):
+    assert sample_motif.species == ["3702"]
+    assert sample_motif.species_name == ["Arabidopsis thaliana"]
+
+
 def test_fetch_motif_by_id_nonexistent_returns_none(jdb_2026):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
