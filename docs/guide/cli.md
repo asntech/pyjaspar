@@ -182,6 +182,16 @@ pyjaspar releases
 pyjaspar releases --latest
 ```
 
+### collections
+
+List JASPAR collections available in a release. The set of collections
+varies by release (e.g. `CORE` and `UNVALIDATED` only from 2022 onward).
+
+```bash
+pyjaspar collections
+pyjaspar collections -r 2020
+```
+
 ### cite
 
 Show citation information.
