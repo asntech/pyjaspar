@@ -139,6 +139,16 @@ print(releases)
 #  'JASPAR2018', 'JASPAR2016', 'JASPAR2014']
 ```
 
+## Available collections
+
+The set of collections varies by release:
+
+```python
+collections = jdb.get_collections()
+print(collections)
+# ['CORE', 'UNVALIDATED']
+```
+
 ## Cross-release comparison
 
 ```python

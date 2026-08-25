@@ -99,3 +99,9 @@ def test_get_releases():
     assert len(releases) == 7
     assert releases[0] == "JASPAR2026"
     db.close()
+
+
+def test_get_collections():
+    db = JasparDB()
+    assert db.get_collections() == ["CORE", "UNVALIDATED"]
+    db.close()
