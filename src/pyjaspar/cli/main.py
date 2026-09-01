@@ -362,9 +362,9 @@ def collections(release: str) -> None:
     UNVALIDATED profiles are computationally sound but not yet
     independently validated.
     """
-    jdb = JasparDB(f"JASPAR{release}")
-    for collection in jdb.get_collections():
-        click.echo(collection)
+    with JasparDB(f"JASPAR{release}") as jdb:
+        for collection in jdb.get_collections():
+            click.echo(collection)
 
 
 @cli.command("cite")
