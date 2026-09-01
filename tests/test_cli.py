@@ -44,6 +44,23 @@ def test_releases_latest():
     assert "JASPAR2026" in result.output
 
 
+# --- collections ---
+
+
+def test_collections():
+    result = CliRunner().invoke(cli, ["collections"])
+    assert result.exit_code == 0
+    assert "CORE" in result.output
+    assert "UNVALIDATED" in result.output
+
+
+def test_collections_release():
+    result = CliRunner().invoke(cli, ["collections", "-r", "2020"])
+    assert result.exit_code == 0
+    assert "CORE" in result.output
+    assert "PHYLOFACTS" in result.output
+
+
 # --- motif-by-id ---
 
 

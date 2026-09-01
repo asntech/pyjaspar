@@ -128,6 +128,23 @@ class JasparDB:
         """
         return list(jaspar_releases.keys())
 
+    def get_collections(self) -> list[str]:
+        """Return the JASPAR collections present in the current release.
+
+        The set of collections varies by release. Recent releases (2022+)
+        use `CORE` (curated, non-redundant profiles with orthogonal
+        supporting evidence) and `UNVALIDATED` (computationally sound
+        profiles awaiting orthogonal support). Older releases also include
+        collections such as `CNE`, `FAM`, `PBM`, `PBM_HLH`, `PBM_HOMEO`,
+        `PHYLOFACTS`, `POLII`, and `SPLICE`.
+
+        Returns:
+            A sorted list of collection names.
+        """
+        cur = self._conn.cursor()
+        cur.execute("SELECT DISTINCT COLLECTION FROM MATRIX ORDER BY COLLECTION")
+        return [row[0] for row in cur.fetchall()]
+
     def fetch_motif_by_id(self, id: str) -> Motif | None:
         """Fetch a single JASPAR motif by its matrix ID.
 

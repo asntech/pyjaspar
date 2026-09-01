@@ -38,7 +38,7 @@ click.rich_click.COMMAND_GROUPS = {
         },
         {
             "name": "General commands",
-            "commands": ["releases", "cite"],
+            "commands": ["releases", "collections", "cite"],
         },
     ]
 }
@@ -344,6 +344,27 @@ def releases(latest: bool) -> None:
     else:
         for release in jaspar_releases:
             click.echo(release)
+
+
+@cli.command("collections")
+@click.option(
+    "-r",
+    "--release",
+    default=_LATEST_YEAR,
+    show_default=True,
+    type=click.Choice(_RELEASE_YEARS, case_sensitive=False),
+    help="JASPAR release year",
+)
+def collections(release: str) -> None:
+    """Get JASPAR collections available in a release.
+
+    CORE profiles are curated with orthogonal supporting evidence.
+    UNVALIDATED profiles are computationally sound but not yet
+    independently validated.
+    """
+    with JasparDB(f"JASPAR{release}") as jdb:
+        for collection in jdb.get_collections():
+            click.echo(collection)
 
 
 @cli.command("cite")
