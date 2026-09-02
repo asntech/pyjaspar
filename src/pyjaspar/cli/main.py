@@ -148,16 +148,16 @@ def cli() -> None:
 )
 def motif_by_id(id: str, release: str, motif_format: str, metadata: bool, fmt: str) -> None:
     """Get motif matrix by JASPAR ID."""
-    jdb = JasparDB(f"JASPAR{release}")
-    motif = jdb.fetch_motif_by_id(id)
-    if motif is None:
-        click.echo(click.style(f"No motif found with ID: {id}", fg="red"), err=True)
-        sys.exit(1)
+    with JasparDB(f"JASPAR{release}") as jdb:
+        motif = jdb.fetch_motif_by_id(id)
+        if motif is None:
+            click.echo(click.style(f"No motif found with ID: {id}", fg="red"), err=True)
+            sys.exit(1)
 
-    if metadata:
-        _print_metadata([motif], fmt=fmt)
-    else:
-        _print_matrix_data([motif], motif_format=motif_format)
+        if metadata:
+            _print_metadata([motif], fmt=fmt)
+        else:
+            _print_matrix_data([motif], motif_format=motif_format)
 
 
 @cli.command("motifs-by-name")
@@ -191,13 +191,13 @@ def motifs_by_name(tf_name: str, release: str, motif_format: str, metadata: bool
 
     TF_NAME is the transcription factor name (e.g. CTCF, YY1).
     """
-    jdb = JasparDB(f"JASPAR{release}")
-    motifs = jdb.fetch_motifs_by_name(tf_name)
+    with JasparDB(f"JASPAR{release}") as jdb:
+        motifs = jdb.fetch_motifs_by_name(tf_name)
 
-    if metadata:
-        _print_metadata(motifs, fmt=fmt)
-    else:
-        _print_matrix_data(motifs, motif_format=motif_format)
+        if metadata:
+            _print_metadata(motifs, fmt=fmt)
+        else:
+            _print_matrix_data(motifs, motif_format=motif_format)
 
 
 @cli.command("motifs")
@@ -262,24 +262,24 @@ def motifs(
     output_file: str | None,
 ) -> None:
     """Get JASPAR motifs in different formats."""
-    jdb = JasparDB(f"JASPAR{release}")
-    result = jdb.fetch_motifs(
-        collection=collection,
-        tf_name=tf_name,
-        tf_class=tf_class,
-        tf_family=tf_family,
-        matrix_id=matrix_id,
-        tax_group=tax_group,
-        species=species,
-        pazar_id=pazar_id,
-        data_type=data_type,
-        medline=medline,
-        min_ic=min_ic or 0,
-        min_length=min_length or 0,
-        min_sites=min_sites or 0,
-        all_versions=redundant,
-    )
-    _print_matrix_data(result, output_file=output_file, motif_format=motif_format)
+    with JasparDB(f"JASPAR{release}") as jdb:
+        result = jdb.fetch_motifs(
+            collection=collection,
+            tf_name=tf_name,
+            tf_class=tf_class,
+            tf_family=tf_family,
+            matrix_id=matrix_id,
+            tax_group=tax_group,
+            species=species,
+            pazar_id=pazar_id,
+            data_type=data_type,
+            medline=medline,
+            min_ic=min_ic or 0,
+            min_length=min_length or 0,
+            min_sites=min_sites or 0,
+            all_versions=redundant,
+        )
+        _print_matrix_data(result, output_file=output_file, motif_format=motif_format)
 
 
 @cli.command("metadata")
@@ -325,14 +325,14 @@ def metadata(
     redundant: bool,
 ) -> None:
     """Get metadata for motif(s)."""
-    jdb = JasparDB(f"JASPAR{release}")
-    result = jdb.fetch_motifs(
-        collection=collection,
-        tax_group=tax_group,
-        species=species,
-        all_versions=redundant,
-    )
-    _print_metadata(result, output_file=output_file, fmt=fmt)
+    with JasparDB(f"JASPAR{release}") as jdb:
+        result = jdb.fetch_motifs(
+            collection=collection,
+            tax_group=tax_group,
+            species=species,
+            all_versions=redundant,
+        )
+        _print_metadata(result, output_file=output_file, fmt=fmt)
 
 
 @cli.command("releases")
