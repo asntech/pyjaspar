@@ -23,6 +23,7 @@ def test_analysis_commands_in_help():
     assert result.exit_code == 0
     assert "scan" in result.output
     assert "similarity" in result.output
+    assert "align" in result.output
     assert "enrichment" in result.output
 
 
@@ -176,6 +177,37 @@ def test_similarity_with_offset():
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert data["offset"] == 2
+
+
+# --- align tests ---
+
+
+def test_align_basic():
+    result = CliRunner().invoke(cli, ["align", "MA0001.1", "MA0002.1"])
+    assert result.exit_code == 0
+    assert "target" in result.output
+    assert "query" in result.output
+
+
+def test_align_no_reverse_complement():
+    result = CliRunner().invoke(cli, ["align", "MA0001.1", "MA0002.1", "--no-reverse-complement"])
+    assert result.exit_code == 0
+
+
+def test_align_json():
+    result = CliRunner().invoke(cli, ["align", "MA0001.1", "MA0002.1", "--format", "json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["motif1"] == "MA0001.1"
+    assert data["motif2"] == "MA0002.1"
+    assert "score" in data
+    assert "offset" in data
+    assert "is_reverse_complement" in data
+
+
+def test_align_invalid_motif():
+    result = CliRunner().invoke(cli, ["align", "MA9999.1", "MA0002.1"])
+    assert result.exit_code == 1
 
 
 # --- enrichment tests ---
