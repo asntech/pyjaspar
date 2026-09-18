@@ -1,0 +1,110 @@
+"""Motif alignment view.
+
+Renders the offset/orientation found by ``similarity.best_correlation`` as
+an actual gapped, side-by-side alignment. This module does not compute a
+new similarity score -- the score, offset, and orientation all come from
+``best_correlation``; this only adds the visual/structural representation.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+import numpy as np
+from Bio.Align import Alignment
+
+from .similarity import best_correlation
+
+if TYPE_CHECKING:
+    from Bio.motifs.jaspar import Motif
+
+
+@dataclass
+class AlignmentResult:
+    """Rendered alignment between two motifs.
+
+    Attributes:
+        motif1_id: First motif's JASPAR matrix ID.
+        motif2_id: Second motif's JASPAR matrix ID.
+        score: Pearson correlation at the best offset (from best_correlation).
+        offset: Position offset of motif2 relative to motif1.
+        is_reverse_complement: Whether motif2 was reverse-complemented.
+        alignment: The rendered Bio.Align.Alignment. ``str(alignment)``
+            gives a target/query display with a match/mismatch line.
+    """
+
+    motif1_id: str
+    motif2_id: str
+    score: float
+    offset: int
+    is_reverse_complement: bool
+    alignment: Alignment
+
+
+def _offset_to_coordinates(len1: int, len2: int, offset: int) -> np.ndarray:
+    """Convert a best_correlation offset into Bio.Align.Alignment coordinates.
+
+    Positive offset means motif2 is shifted right relative to motif1 (the
+    same convention used by similarity.pearson_correlation).
+
+    Args:
+        len1: Length of the first sequence.
+        len2: Length of the second sequence.
+        offset: Position offset of sequence 2 relative to sequence 1.
+
+    Returns:
+        A (2, n) array of per-sequence coordinates suitable for
+        ``Bio.Align.Alignment(sequences, coordinates)``.
+    """
+    shift = max(0, -offset)
+    s1_start, s1_end = shift, shift + len1
+    s2_start, s2_end = shift + offset, shift + offset + len2
+    overlap_start = max(s1_start, s2_start)
+    overlap_end = min(s1_end, s2_end)
+
+    points = sorted({s1_start, s2_start, overlap_start, overlap_end, s1_end, s2_end})
+    c1 = [max(0, min(len1, p - s1_start)) for p in points]
+    c2 = [max(0, min(len2, p - s2_start)) for p in points]
+    return np.array([c1, c2])
+
+
+def align_motifs(
+    motif1: Motif,
+    motif2: Motif,
+    min_overlap: int = 4,
+    both_strands: bool = True,
+) -> AlignmentResult:
+    """Align two motifs and render the result.
+
+    Reuses best_correlation() for the score/offset/orientation search, then
+    builds the actual gapped alignment view from that offset. This does not
+    introduce a new similarity metric -- see best_correlation for that.
+
+    Args:
+        motif1: First motif (reference).
+        motif2: Second motif.
+        min_overlap: Minimum overlapping columns required (passed through
+            to best_correlation).
+        both_strands: If True, also try the reverse complement of motif2.
+
+    Returns:
+        AlignmentResult with the score/offset from best_correlation plus
+        the rendered alignment.
+    """
+    score, offset, is_rc = best_correlation(motif1, motif2, min_overlap, both_strands)
+    motif2_used = motif2.reverse_complement() if is_rc else motif2
+
+    seq1 = str(motif1.consensus)
+    seq2 = str(motif2_used.consensus)
+    coordinates = _offset_to_coordinates(len(seq1), len(seq2), offset)
+    alignment = Alignment([seq1, seq2], coordinates)
+
+    return AlignmentResult(
+        motif1_id=motif1.matrix_id,
+        motif2_id=motif2.matrix_id,
+        score=score,
+        offset=offset,
+        is_reverse_complement=is_rc,
+        alignment=alignment,
+    )
