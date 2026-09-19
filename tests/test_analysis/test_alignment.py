@@ -8,7 +8,7 @@ from Bio.Align import Alignment
 
 from pyjaspar import JasparDB
 from pyjaspar.analysis.alignment import _offset_to_coordinates, align_motifs
-from pyjaspar.analysis.similarity import pearson_correlation
+from pyjaspar.analysis.similarity import best_correlation, pearson_correlation
 
 
 @pytest.fixture(scope="module")
@@ -70,6 +70,18 @@ def test_align_motifs_different(motif_agl3, motif_runx1):
     assert isinstance(result.is_reverse_complement, bool)
     assert result.motif1_id == motif_agl3.matrix_id
     assert result.motif2_id == motif_runx1.matrix_id
+
+
+def test_align_motifs_matches_best_correlation_triple(motif_agl3, motif_runx1):
+    """align_motifs and best_correlation must return the same (score, offset, is_rc).
+
+    Guards against the two call sites (similarity.best_correlation and
+    alignment.align_motifs) drifting apart after the shared search was
+    extracted into _alignment_search.find_best_offset.
+    """
+    result = align_motifs(motif_agl3, motif_runx1)
+    expected = best_correlation(motif_agl3, motif_runx1)
+    assert (result.score, result.offset, result.is_reverse_complement) == expected
 
 
 def test_align_motifs_score_matches_best_correlation(motif_agl3, motif_runx1):
