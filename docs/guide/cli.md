@@ -105,6 +105,22 @@ pyjaspar similarity MA0001.1 MA0002.1 --offset 3
 pyjaspar similarity MA0001.1 MA0002.1 --best --format json
 ```
 
+### align
+
+Find the best offset and orientation between two motifs and show the
+aligned view, rather than just a score.
+
+```bash
+# Basic alignment
+pyjaspar align MA0001.1 MA0002.1
+
+# Don't try the reverse complement
+pyjaspar align MA0001.1 MA0002.1 --no-reverse-complement
+
+# JSON output (score/offset/orientation only, not the rendered view)
+pyjaspar align MA0001.1 MA0002.1 --format json
+```
+
 ### enrichment
 
 Test motif enrichment in foreground vs background sequences.
