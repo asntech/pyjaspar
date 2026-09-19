@@ -1,11 +1,7 @@
 """Motif alignment view.
 
-Renders the offset/orientation search shared with
-``similarity.best_correlation`` (see ``_alignment_search.find_best_offset``)
-as an actual gapped, side-by-side alignment. This module does not compute a
-new similarity score -- the score, offset, and orientation come from the
-same search ``best_correlation`` uses; this only adds the visual/structural
-representation.
+Renders the best offset/orientation between two motifs as an actual
+gapped, side-by-side alignment, rather than just a score.
 """
 
 from __future__ import annotations
@@ -30,8 +26,7 @@ class AlignmentResult:
     Attributes:
         motif1_id: First motif's JASPAR matrix ID.
         motif2_id: Second motif's JASPAR matrix ID.
-        score: Pearson correlation at the best offset (same search used by
-            best_correlation).
+        score: Pearson correlation at the best offset.
         offset: Position offset of motif2 relative to motif1.
         is_reverse_complement: Whether motif2 was reverse-complemented.
         alignment: The rendered Bio.Align.Alignment. ``str(alignment)``
@@ -47,10 +42,9 @@ class AlignmentResult:
 
 
 def _offset_to_coordinates(len1: int, len2: int, offset: int) -> np.ndarray:
-    """Convert a best_correlation offset into Bio.Align.Alignment coordinates.
+    """Convert an alignment offset into Bio.Align.Alignment coordinates.
 
-    Positive offset means motif2 is shifted right relative to motif1 (the
-    same convention used by similarity.pearson_correlation).
+    Positive offset means sequence 2 is shifted right relative to sequence 1.
 
     Args:
         len1: Length of the first sequence.
@@ -81,21 +75,18 @@ def align_motifs(
 ) -> AlignmentResult:
     """Align two motifs and render the result.
 
-    Uses the same offset/orientation search as similarity.best_correlation()
-    (see _alignment_search.find_best_offset), then builds the actual gapped
-    alignment view from that offset. This does not introduce a new
-    similarity metric -- see best_correlation for that.
+    Finds the best offset and orientation between the two motifs, then
+    builds the actual gapped alignment view for it.
 
     Args:
         motif1: First motif (reference).
         motif2: Second motif.
-        min_overlap: Minimum overlapping columns required (passed through
-            to the offset search).
+        min_overlap: Minimum overlapping columns required.
         both_strands: If True, also try the reverse complement of motif2.
 
     Returns:
-        AlignmentResult with the score/offset from the same search
-        best_correlation uses, plus the rendered alignment.
+        AlignmentResult with the best score/offset/orientation plus the
+        rendered alignment.
     """
     score, offset, is_rc = find_best_offset(
         motif1, motif2, pearson_correlation, min_overlap, both_strands
