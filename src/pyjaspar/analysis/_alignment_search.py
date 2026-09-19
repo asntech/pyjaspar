@@ -26,22 +26,18 @@ def find_best_offset(
     Tries every valid offset, and (if both_strands) the reverse complement
     of motif2, keeping whichever scores highest.
 
-    `metric` must be a higher-is-better score (true for
-    similarity.pearson_correlation; NOT true for
-    similarity.euclidean_distance/kl_divergence, which are lower-is-better
-    -- passing one of those in would silently return the worst alignment
-    instead of the best, since this function always keeps the maximum).
-
     Args:
         motif1: First motif (reference).
         motif2: Second motif.
-        metric: Column-similarity function, called as metric(motif1, motif2, offset).
+        metric: Column-similarity function, called as metric(motif1, motif2,
+            offset). Must be higher-is-better.
         min_overlap: Minimum number of overlapping columns required.
         both_strands: If True, also try the reverse complement of motif2.
 
     Returns:
         Tuple of (best_score, best_offset, is_reverse_complement).
     """
+    # -2.0 is below any possible Pearson correlation ([-1, 1]), so the first real score always wins.
     best_score = -2.0
     best_offset = 0
     best_rc = False
@@ -51,18 +47,20 @@ def find_best_offset(
 
     for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
         score = metric(motif1, motif2, offset)
-        if score > best_score:
-            best_score = score
-            best_offset = offset
-            best_rc = False
+        if score <= best_score:
+            continue
+        best_score = score
+        best_offset = offset
+        best_rc = False
 
     if both_strands:
         rc_motif2 = motif2.reverse_complement()
         for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
             score = metric(motif1, rc_motif2, offset)
-            if score > best_score:
-                best_score = score
-                best_offset = offset
-                best_rc = True
+            if score <= best_score:
+                continue
+            best_score = score
+            best_offset = offset
+            best_rc = True
 
     return best_score, best_offset, best_rc
