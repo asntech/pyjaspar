@@ -1,9 +1,8 @@
-"""Generic offset/orientation search for aligning motif PFM columns.
+"""Offset/orientation search for aligning two motifs' PFM columns.
 
-Extracted from similarity.best_correlation() so the search algorithm has
-one home, shared by similarity.best_correlation() and
-alignment.align_motifs(), instead of one module reaching into the other's
-implementation details.
+Finds the relative shift and strand orientation between two motifs that
+maximizes a given column-similarity metric. Used by
+similarity.best_correlation() and alignment.align_motifs().
 """
 
 from __future__ import annotations
