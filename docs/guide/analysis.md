@@ -86,9 +86,8 @@ All metrics return 0.0 (Pearson) or `float('inf')` (Euclidean, KL) when there is
 
 ## Motif alignment
 
-`align_motifs()` reuses `best_correlation()`'s offset/orientation search
-(see above) and renders it as an actual gapped alignment, rather than just
-a score. It does not introduce a new similarity metric.
+`align_motifs()` finds the best offset and orientation between two motifs
+and renders it as an actual gapped alignment, rather than just a score.
 
 ```python
 from pyjaspar import JasparDB

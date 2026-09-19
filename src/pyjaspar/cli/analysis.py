@@ -300,9 +300,8 @@ def align(
 ) -> None:
     """Align two motifs and show the aligned view.
 
-    Reuses the same offset/orientation search as `similarity --best`; this
-    command renders that offset as an actual gapped alignment instead of
-    just reporting a score.
+    Finds the best offset and orientation between the two motifs and
+    renders it as an actual gapped alignment, rather than just a score.
     """
     _require_analysis()
     from pyjaspar.analysis import align_motifs
