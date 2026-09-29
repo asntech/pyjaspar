@@ -52,3 +52,48 @@ def test_plot_logo_draws_on_given_axes(motif_ctcf):
     _, ax = plt.subplots()
     logo = plot_logo(motif_ctcf, ax=ax)
     assert logo.ax is ax
+
+
+# --- logo CLI tests ---
+
+
+def test_logo_cli_writes_png(tmp_path):
+    from click.testing import CliRunner
+
+    from pyjaspar.cli.main import cli
+
+    out = tmp_path / "ctcf.png"
+    result = CliRunner().invoke(cli, ["logo", "MA0139.1", "-o", str(out)])
+    assert result.exit_code == 0
+    assert out.read_bytes().startswith(b"\x89PNG")
+
+
+def test_logo_cli_writes_svg(tmp_path):
+    from click.testing import CliRunner
+
+    from pyjaspar.cli.main import cli
+
+    out = tmp_path / "ctcf.svg"
+    result = CliRunner().invoke(cli, ["logo", "MA0139.1", "-o", str(out)])
+    assert result.exit_code == 0
+    assert "<svg" in out.read_text()
+
+
+def test_logo_cli_invalid_motif(tmp_path):
+    from click.testing import CliRunner
+
+    from pyjaspar.cli.main import cli
+
+    out = tmp_path / "x.png"
+    result = CliRunner().invoke(cli, ["logo", "MA9999.9", "-o", str(out)])
+    assert result.exit_code == 1
+    assert not out.exists()
+
+
+def test_logo_in_help():
+    from click.testing import CliRunner
+
+    from pyjaspar.cli.main import cli
+
+    result = CliRunner().invoke(cli, ["--help"])
+    assert "logo" in result.output

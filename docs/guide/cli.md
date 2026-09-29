@@ -139,6 +139,20 @@ pyjaspar enrichment \
     --format json
 ```
 
+## Visualization commands
+
+### logo
+
+Draw the sequence logo of a motif (requires `pip install pyjaspar[viz]`).
+
+```bash
+# The format follows the file extension
+pyjaspar logo MA0139.2 -o ctcf_logo.png
+
+# Vector output
+pyjaspar logo MA0139.2 -o ctcf_logo.svg
+```
+
 ## Deep Learning (DL) commands
 
 ### dl profile
