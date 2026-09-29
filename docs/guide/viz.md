@@ -13,7 +13,7 @@ from pyjaspar import JasparDB
 from pyjaspar.viz import plot_logo
 
 jdb = JasparDB()
-motif = jdb.fetch_motif_by_id("MA0139.1")
+motif = jdb.fetch_motif_by_id("MA0139.2")  # CTCF, human
 
 logo = plot_logo(motif)
 logo.ax.set_title(f"{motif.matrix_id} {motif.name}")
@@ -25,8 +25,11 @@ Pass `ax=` to draw several logos on one figure:
 ```python
 import matplotlib.pyplot as plt
 
+# CTCF in vertebrates vs insects
+motifs = [jdb.fetch_motif_by_id(i) for i in ("MA0139.2", "MA0531.2")]
+
 fig, axes = plt.subplots(2, 1, sharex=True)
-for ax, motif in zip(axes, jdb.fetch_motifs_by_name("ATF3")[:2]):
+for ax, motif in zip(axes, motifs):
     plot_logo(motif, ax=ax)
-    ax.set_title(f"{motif.matrix_id} {motif.name}")
+    ax.set_title(f"{motif.matrix_id} {motif.name} ({motif.tax_group})")
 ```
