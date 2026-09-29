@@ -129,10 +129,11 @@ Results are sorted by p-value with Benjamini-Hochberg correction applied.
 Predict which JASPAR profiles a protein binds from its amino acid sequence
 (full length or just the DNA-binding domain). The protein is compared with the
 DNA-binding domains of TFs that already have a JASPAR profile, so the hits are
-its closest *relatives*, whose profiles you can borrow. The search runs on a
-JASPAR server (the
-[JASPAR profile inference tool](https://github.com/wassermanlab/JASPAR-inference-tool)),
-so it needs network access and takes several seconds.
+its closest *relatives*. The search runs on a JASPAR server, so it needs
+network access and takes several seconds. The method is described in the
+[JASPAR documentation](https://jaspar.elixir.no/docs/) and the
+[JASPAR 2016 paper](https://doi.org/10.1093/nar/gkv1176); the tool itself is
+[on GitHub](https://github.com/wassermanlab/JASPAR-inference-tool).
 
 ```python
 from pyjaspar.analysis import infer_profiles
@@ -149,10 +150,9 @@ for hit in hits:
 # MA0733.1  EGR4   E-value=9.15e-51   DBD identity=77%
 ```
 
-The server returns matrix IDs and logo URLs, not the matrices themselves. Only
-some releases have an inference service: `JASPAR2024` (the default),
-`JASPAR2022` and `JASPAR2020`; pass `release=` to choose one. The matrix IDs
-belong to that release, so fetch the profile from the same one:
+The server returns matrix IDs and logo URLs, not the matrices themselves.
+`JASPAR2024` is searched by default; pass `release=` to search another. The
+matrix IDs belong to that release, so fetch the profile from the same one:
 
 ```python
 motif = JasparDB("JASPAR2024").fetch_motif_by_id(hits[0].matrix_id)
