@@ -123,3 +123,44 @@ Results are sorted by p-value with Benjamini-Hochberg correction applied.
 | `fold_enrichment` | float | Foreground hit rate / background hit rate |
 | `pvalue` | float | Fisher's exact test p-value |
 | `qvalue` | float | Benjamini-Hochberg adjusted p-value |
+
+## Profile inference
+
+Predict which JASPAR profiles a protein binds from its amino acid sequence
+(full length or just the DNA-binding domain). The search runs on a JASPAR
+server, so it needs network access and takes several seconds.
+
+```python
+from pyjaspar import JasparDB
+from pyjaspar.analysis import infer_profiles
+
+hits = infer_profiles(egr1_sequence)  # protein sequence as a string
+
+for hit in hits:
+    print(hit.matrix_id, hit.name, hit.evalue, hit.dbd_identity)
+# MA0162.2 EGR1 0.0 1.0
+# MA0732.1 EGR3 2.43e-90 0.884
+# MA0472.1 Egr2 1.45e-76 0.957
+# MA0733.1 EGR4 2.11e-51 0.812
+```
+
+Only some releases have an inference service: `JASPAR2024` (the default),
+`JASPAR2022` and `JASPAR2020`. Pass `release=` to choose one. The matrix IDs
+belong to that release, so fetch the motifs from the same one:
+
+```python
+motif = JasparDB("JASPAR2024").fetch_motif_by_id(hits[0].matrix_id)
+```
+
+An empty list means the server found no matching profile.
+
+### InferenceHit fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `matrix_id` | str | JASPAR matrix ID |
+| `name` | str | TF name |
+| `evalue` | float | E-value of the DNA-binding domain match |
+| `dbd_identity` | float | DNA-binding domain identity to the profile's TF (0-1) |
+| `logo_url` | str | URL of the profile's sequence logo (SVG) |
+| `release` | str | JASPAR release the matrix ID belongs to |
