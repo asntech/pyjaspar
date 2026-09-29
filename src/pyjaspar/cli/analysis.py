@@ -258,6 +258,89 @@ def similarity(
         _print_output(result, fmt, _SIMILARITY_TSV_KEYS)
 
 
+@click.command("align")
+@click.argument("id1")
+@click.argument("id2")
+@click.option(
+    "-r",
+    "--release",
+    default=_LATEST_YEAR,
+    show_default=True,
+    type=click.Choice(_RELEASE_YEARS, case_sensitive=False),
+    help="JASPAR release year",
+)
+@click.option(
+    "--min-overlap",
+    default=4,
+    show_default=True,
+    type=int,
+    help="Minimum overlapping columns required",
+)
+@click.option(
+    "--no-reverse-complement",
+    is_flag=True,
+    default=False,
+    help="Don't try the reverse complement of motif2",
+)
+@click.option(
+    "--format",
+    "fmt",
+    default="tsv",
+    show_default=True,
+    type=click.Choice(["json", "tsv"], case_sensitive=False),
+    help="Output format ('tsv' prints the human-readable aligned view, not actual TSV)",
+)
+def align(
+    id1: str,
+    id2: str,
+    release: str,
+    min_overlap: int,
+    no_reverse_complement: bool,
+    fmt: str,
+) -> None:
+    """Align two motifs and show the aligned view.
+
+    Finds the best offset and orientation between the two motifs and
+    renders it as an actual gapped alignment, rather than just a score.
+    """
+    _require_analysis()
+    from pyjaspar.analysis import align_motifs
+
+    jdb = JasparDB(f"JASPAR{release}")
+    motif1 = jdb.fetch_motif_by_id(id1)
+    if motif1 is None:
+        click.echo(click.style(f"No motif found with ID: {id1}", fg="red"), err=True)
+        sys.exit(1)
+
+    motif2 = jdb.fetch_motif_by_id(id2)
+    if motif2 is None:
+        click.echo(click.style(f"No motif found with ID: {id2}", fg="red"), err=True)
+        sys.exit(1)
+
+    result = align_motifs(
+        motif1,
+        motif2,
+        min_overlap=min_overlap,
+        both_strands=not no_reverse_complement,
+    )
+
+    if fmt == "json":
+        data = {
+            "motif1": id1,
+            "motif2": id2,
+            "score": round(result.score, 6),
+            "offset": result.offset,
+            "is_reverse_complement": result.is_reverse_complement,
+        }
+        _print_output(data, "json")
+    else:
+        click.echo(click.style(str(result.alignment), fg="green"))
+        click.echo(
+            f"score={result.score:.4f} offset={result.offset} "
+            f"is_reverse_complement={result.is_reverse_complement}"
+        )
+
+
 @click.command("enrichment")
 @click.option(
     "--foreground",

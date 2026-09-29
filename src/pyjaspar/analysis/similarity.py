@@ -15,6 +15,8 @@ except ImportError:
         "The pyjaspar.analysis module requires numpy. Install with: pip install pyjaspar[analysis]"
     ) from None
 
+from ._alignment_search import find_best_offset
+
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
 
@@ -96,30 +98,7 @@ def best_correlation(
     Returns:
         Tuple of (best_score, best_offset, is_reverse_complement).
     """
-    best_score = -2.0
-    best_offset = 0
-    best_rc = False
-
-    len1 = motif1.length
-    len2 = motif2.length
-
-    for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
-        score = pearson_correlation(motif1, motif2, offset)
-        if score > best_score:
-            best_score = score
-            best_offset = offset
-            best_rc = False
-
-    if both_strands:
-        rc_motif2 = motif2.reverse_complement()
-        for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
-            score = pearson_correlation(motif1, rc_motif2, offset)
-            if score > best_score:
-                best_score = score
-                best_offset = offset
-                best_rc = True
-
-    return best_score, best_offset, best_rc
+    return find_best_offset(motif1, motif2, pearson_correlation, min_overlap, both_strands)
 
 
 def euclidean_distance(

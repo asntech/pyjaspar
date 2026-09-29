@@ -84,6 +84,40 @@ print(f"KL divergence = {kl:.4f}")  # non-negative, 0 = identical
 
 All metrics return 0.0 (Pearson) or `float('inf')` (Euclidean, KL) when there is no overlap between motifs.
 
+## Motif alignment
+
+`align_motifs()` finds the best offset and orientation between two motifs
+and renders it as an actual gapped alignment, rather than just a score.
+
+```python
+from pyjaspar import JasparDB
+from pyjaspar.analysis import align_motifs
+
+jdb = JasparDB()
+m1 = jdb.fetch_motif_by_id("MA0001.1")
+m2 = jdb.fetch_motif_by_id("MA0002.1")
+
+result = align_motifs(m1, m2)
+print(result.alignment)
+# target            0 ------CCATAAATAG 10
+#                   0 ------|.|||----- 16
+# query             0 TAACCACAATA----- 11
+
+print(f"score={result.score:.4f} offset={result.offset} "
+      f"is_reverse_complement={result.is_reverse_complement}")
+```
+
+### AlignmentResult fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `motif1_id` | str | First motif's JASPAR matrix ID |
+| `motif2_id` | str | Second motif's JASPAR matrix ID |
+| `score` | float | Pearson correlation at the best offset (from `best_correlation`) |
+| `offset` | int | Position offset of motif2 relative to motif1 |
+| `is_reverse_complement` | bool | Whether motif2 was reverse-complemented |
+| `alignment` | `Bio.Align.Alignment` | The rendered alignment (`str()` gives the target/query display) |
+
 ## Enrichment analysis
 
 Test whether motifs are enriched in a foreground set of sequences compared to a background set.

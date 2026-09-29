@@ -3,6 +3,7 @@
 Requires the ``analysis`` extra: ``pip install pyjaspar[analysis]``
 """
 
+from .alignment import AlignmentResult, align_motifs
 from .enrichment import EnrichmentResult, motif_enrichment
 from .scanning import ScanHit, scan_sequence
 from .similarity import (
@@ -21,4 +22,6 @@ __all__ = [
     "scan_sequence",
     "EnrichmentResult",
     "motif_enrichment",
+    "AlignmentResult",
+    "align_motifs",
 ]
