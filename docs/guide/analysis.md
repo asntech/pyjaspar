@@ -129,11 +129,9 @@ Results are sorted by p-value with Benjamini-Hochberg correction applied.
 Predict which JASPAR profiles a protein binds from its amino acid sequence
 (full length or just the DNA-binding domain). The protein is compared with the
 DNA-binding domains of TFs that already have a JASPAR profile, so the hits are
-its closest *relatives*. The search runs on a JASPAR server, so it needs
-network access and takes several seconds. The method is described in the
-[JASPAR documentation](https://jaspar.elixir.no/docs/) and the
-[JASPAR 2016 paper](https://doi.org/10.1093/nar/gkv1176); the tool itself is
-[on GitHub](https://github.com/wassermanlab/JASPAR-inference-tool).
+its closest *relatives*. The search runs on a JASPAR server (the
+[JASPAR profile inference tool](https://github.com/wassermanlab/JASPAR-inference-tool)),
+so it needs network access and takes several seconds.
 
 ```python
 from pyjaspar.analysis import infer_profiles
