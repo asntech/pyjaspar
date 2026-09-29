@@ -29,8 +29,9 @@ class InferenceHit:
     Attributes:
         matrix_id: JASPAR matrix ID, e.g. ``MA0162.2``.
         name: Name of the TF the profile belongs to.
-        evalue: E-value of the DNA-binding domain match.
-        dbd_identity: DNA-binding domain identity to the profile's TF (0-1).
+        evalue: E-value of the DNA-binding domain match; lower is more significant.
+        dbd_identity: Share of identical amino acids in the DNA-binding domain,
+            as a fraction (0-1).
         logo_url: URL of the profile's sequence logo (SVG).
         release: JASPAR release the matrix ID belongs to.
     """
@@ -49,6 +50,9 @@ def infer_profiles(
     timeout: float = 120.0,
 ) -> list[InferenceHit]:
     """Predict the JASPAR profiles bound by a protein.
+
+    The protein is compared with the DNA-binding domains of TFs that already
+    have a JASPAR profile, so the hits are its closest relatives.
 
     Args:
         sequence: Amino acid sequence, full length or the DNA-binding domain.

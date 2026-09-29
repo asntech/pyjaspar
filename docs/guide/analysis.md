@@ -127,29 +127,36 @@ Results are sorted by p-value with Benjamini-Hochberg correction applied.
 ## Profile inference
 
 Predict which JASPAR profiles a protein binds from its amino acid sequence
-(full length or just the DNA-binding domain). The search runs on a JASPAR
-server, so it needs network access and takes several seconds.
+(full length or just the DNA-binding domain). The protein is compared with the
+DNA-binding domains of TFs that already have a JASPAR profile, so the hits are
+its closest *relatives*, whose profiles you can borrow. The search runs on a
+JASPAR server (the
+[JASPAR profile inference tool](https://github.com/wassermanlab/JASPAR-inference-tool)),
+so it needs network access and takes several seconds.
 
 ```python
-from pyjaspar import JasparDB
 from pyjaspar.analysis import infer_profiles
 
-hits = infer_profiles(egr1_sequence)  # protein sequence as a string
+dbd = "ACPVETCDRRFSRSDELTRHIRIHTGQKPFQCRICMRNFSRSDHLTTHIRTHTGEKPFACEICGRKFARSDERKRHTKIHMRQKDKKAEKGA"  # a zinc-finger domain
+
+hits = infer_profiles(dbd)
 
 for hit in hits:
-    print(hit.matrix_id, hit.name, hit.evalue, hit.dbd_identity)
-# MA0162.2 EGR1 0.0 1.0
-# MA0732.1 EGR3 2.43e-90 0.884
-# MA0472.1 Egr2 1.45e-76 0.957
-# MA0733.1 EGR4 2.11e-51 0.812
+    print(f"{hit.matrix_id}  {hit.name:<5}  E-value={hit.evalue:<9.2e}  DBD identity={hit.dbd_identity:.0%}")
+# MA0162.2  EGR1   E-value=1.90e-63   DBD identity=94%
+# MA0732.1  EGR3   E-value=2.34e-59   DBD identity=90%
+# MA0472.2  EGR2   E-value=1.50e-54   DBD identity=93%
+# MA0733.1  EGR4   E-value=9.15e-51   DBD identity=77%
 ```
 
-Only some releases have an inference service: `JASPAR2024` (the default),
-`JASPAR2022` and `JASPAR2020`. Pass `release=` to choose one. The matrix IDs
-belong to that release, so fetch the motifs from the same one:
+The server returns matrix IDs and logo URLs, not the matrices themselves. Only
+some releases have an inference service: `JASPAR2024` (the default),
+`JASPAR2022` and `JASPAR2020`; pass `release=` to choose one. The matrix IDs
+belong to that release, so fetch the profile from the same one:
 
 ```python
 motif = JasparDB("JASPAR2024").fetch_motif_by_id(hits[0].matrix_id)
+print(motif.consensus)  # CCCCCGCCCCCGCC
 ```
 
 An empty list means the server found no matching profile.
@@ -159,8 +166,8 @@ An empty list means the server found no matching profile.
 | Field | Type | Description |
 |-------|------|-------------|
 | `matrix_id` | str | JASPAR matrix ID |
-| `name` | str | TF name |
-| `evalue` | float | E-value of the DNA-binding domain match |
-| `dbd_identity` | float | DNA-binding domain identity to the profile's TF (0-1) |
+| `name` | str | Name of the TF the profile belongs to (a relative of your protein) |
+| `evalue` | float | E-value of the DNA-binding domain match; lower is more significant |
+| `dbd_identity` | float | Share of identical amino acids in the DNA-binding domain, as a fraction (0-1) |
 | `logo_url` | str | URL of the profile's sequence logo (SVG) |
 | `release` | str | JASPAR release the matrix ID belongs to |
