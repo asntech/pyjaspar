@@ -18,10 +18,10 @@ __all__ = [
     "euclidean_distance",
     "kl_divergence",
     "pearson_correlation",
+    "InferenceHit",
+    "infer_profiles",
     "ScanHit",
     "scan_sequence",
     "EnrichmentResult",
     "motif_enrichment",
-    "InferenceHit",
-    "infer_profiles",
 ]
