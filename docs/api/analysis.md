@@ -7,6 +7,15 @@
       show_source: true
       members_order: source
 
+## Profile search
+
+::: pyjaspar.analysis.matrix_align
+    options:
+      show_source: true
+      members_order: source
+      filters:
+        - "!^_"
+
 ## Similarity
 
 ::: pyjaspar.analysis.similarity
