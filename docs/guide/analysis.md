@@ -35,10 +35,10 @@ for hit in hits:
 
 ## Profile search
 
-`search_profiles()` scores a query motif against a set of profiles and ranks them,
-like the **Matrix Align** tool on the JASPAR web site. Build the set with
-`fetch_motifs`, which has the same filters as the web form (collection, taxonomic
-group, latest or all versions).
+`search_profiles()` scores a query motif against a set of profiles and ranks them.
+Build the set with `fetch_motifs`, which has the same filters as the web form of the
+**Matrix Align** tool on the JASPAR web site (collection, taxonomic group, latest or
+all versions).
 
 ```python
 from pyjaspar import JasparDB
@@ -57,7 +57,10 @@ for hit in search_profiles(query, candidates, top=3):
 # MA1929.2  CTCF      score=27.8202
 ```
 
-`score` is the web tool's "Score" column. Every aligned column contributes between
+### Scoring
+
+The scoring implemented here is the one of the Matrix Align web tool. `score` is its
+"Score" column. Every aligned column contributes between
 0 and 2, so a profile aligned with itself scores twice its width, and a longer
 profile tends to score higher. The alignment may leave columns hanging off either
 end for free and may contain one internal gap (`open_penalty=3.0` for its first
@@ -70,7 +73,7 @@ lowered by each candidate in matrix-ID order, the order of the web tool's table,
 never raised again. The value therefore depends on the set of candidates, not only on the
 pair, and it can exceed 100. Use `sort_by="percent_score"` to rank by it.
 
-The method is a semi-global variant of the Needleman-Wunsch algorithm that permits
+The alignment is a semi-global variant of the Needleman-Wunsch algorithm that permits
 one internal gap, as documented for
 [`TFBS::Matrix::Alignment`](https://manpages.ubuntu.com/manpages/noble/man3/TFBS::Matrix::Alignment.3pm.html)
 (Sandelin et al., [Funct Integr Genomics 3:125-134, 2003](https://doi.org/10.1007/s10142-003-0086-6)).

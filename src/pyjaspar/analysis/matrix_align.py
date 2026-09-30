@@ -1,10 +1,11 @@
 """Search a set of profiles with a query motif.
 
-Scores a query motif against candidate profiles with the alignment used by
-JASPAR's "Matrix Align" web tool: a semi-global variant of the
-Needleman-Wunsch algorithm that permits at most one internal gap
-(Sandelin et al., Funct Integr Genomics 3:125-134, 2003, as documented for
-TFBS::Matrix::Alignment; the default gap penalties are the documented ones).
+``search_profiles`` scores a query motif against candidate profiles and ranks
+them. The scoring implemented here is the one of JASPAR's "Matrix Align" web
+tool: a semi-global variant of the Needleman-Wunsch algorithm that permits at
+most one internal gap (Sandelin et al., Funct Integr Genomics 3:125-134, 2003,
+as documented for TFBS::Matrix::Alignment; the default gap penalties are the
+documented ones).
 """
 
 from __future__ import annotations
