@@ -13,6 +13,7 @@ import pytest
 from Bio.motifs.jaspar import Motif
 
 from pyjaspar import JasparDB
+from pyjaspar.analysis import best_correlation
 from pyjaspar.analysis.meme import TomtomHit, tomtom
 
 
@@ -79,6 +80,8 @@ def test_offset_is_the_query_position_minus_the_candidate_position(memelite, ctc
     hit = next(h for h in tomtom(ctcf, [*others, shifted]) if h.matrix_id == "SHIFTED")
     assert hit.offset == -4
     assert hit.overlap == ctcf.length
+    # the same sign as the offset of best_correlation
+    assert best_correlation(ctcf, shifted)[1] == hit.offset
 
 
 def test_hits_are_sorted_by_pvalue_and_top_limits_them(memelite, ctcf, others):

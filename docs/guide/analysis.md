@@ -110,8 +110,8 @@ for hit in tomtom(query, candidates, top=3):
 
 The p-values are computed against a background made of the columns of the candidates, so they
 depend on which candidates are given. Use a large set, such as a whole collection;
-memesuite-lite warns below 25 candidates. The first call in a Python session compiles code and
-takes about half a minute; later calls take a fraction of a second.
+memesuite-lite warns below 25 candidates. The first call on a machine compiles code and takes
+about half a minute; the compiled code is cached, so later calls take about a second.
 
 ### TomtomHit fields
 
@@ -120,7 +120,7 @@ takes about half a minute; later calls take a fraction of a second.
 | `matrix_id` | str | JASPAR matrix ID of the candidate |
 | `name` | str | Name of the TF the candidate belongs to |
 | `pvalue` | float | p-value of the best alignment between the query and the candidate |
-| `offset` | int | Position in the query minus position in the candidate at the first aligned column, in the orientation of the candidate that was aligned |
+| `offset` | int | Position in the query minus position in the candidate at the first aligned column, in the orientation of the candidate that was aligned (the sign of `best_correlation`'s offset) |
 | `overlap` | int | Number of columns that the query and the candidate share |
 | `is_reverse_complement` | bool | The candidate's reverse complement aligned better |
 

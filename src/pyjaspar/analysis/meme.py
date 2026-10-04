@@ -29,7 +29,8 @@ class TomtomHit:
         name: Name of the TF the candidate belongs to.
         pvalue: p-value of the best alignment between the query and the candidate.
         offset: Position in the query minus position in the candidate at the first
-            aligned column, in the orientation of the candidate that was aligned.
+            aligned column, in the orientation of the candidate that was aligned (the
+            sign of the offset of ``best_correlation``).
         overlap: Number of columns that the query and the candidate share.
         is_reverse_complement: True if the reverse complement of the candidate
             aligned better.
@@ -63,8 +64,8 @@ def tomtom(
     memesuite-lite. The p-values are computed against a background made of the
     columns of the candidates, so they depend on which candidates are given: use a
     large set, such as a whole collection (memesuite-lite warns below 25
-    candidates). The first call in a Python session compiles code and takes about
-    half a minute; later calls take a fraction of a second.
+    candidates). The first call on a machine compiles code and takes about half a
+    minute; the compiled code is cached, so later calls take about a second.
 
     Build the candidates with ``JasparDB.fetch_motifs``.
 
@@ -96,7 +97,8 @@ def tomtom(
     )
 
     # memesuite-lite counts the offset as the position in the candidate minus the one in
-    # the query; it is reported here the other way round, as in ProfileHit.
+    # the query; it is reported here the other way round, with the sign of the offset of
+    # best_correlation.
     hits = [
         TomtomHit(
             matrix_id=c.matrix_id,
