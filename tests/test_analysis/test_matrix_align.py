@@ -79,9 +79,43 @@ def test_matches_web_tool_for_egr1_query(jdb, egr1, matrix_id, web_score):
     assert align_score(egr1, candidate).score == pytest.approx(web_score, abs=1e-3)
 
 
-def test_gapped_rows_use_a_gap(jdb, egr1):
-    assert align_score(egr1, jdb.fetch_motif_by_id("MA2457.1")).gaps == 1
-    assert align_score(egr1, jdb.fetch_motif_by_id("MA0002.3")).gaps == 0
+@pytest.mark.parametrize(
+    ("query_id", "matrix_id", "is_reverse_complement", "gaps", "offset", "alignment_length"),
+    [
+        # Output of the matrix_aligner program (jaspar_tools, commit 54aa156, built with g++)
+        # on JASPAR2026 counts, with the default penalties; checked on 2026-10-04.
+        ("MA0162.2", "MA0002.3", True, 0, 0, 9),
+        ("MA0162.2", "MA0004.1", True, 0, 8, 6),
+        ("MA0162.2", "MA2457.1", True, 8, 0, 22),
+        ("MA0162.2", "MA1654.2", True, 6, 0, 20),
+        ("MA0162.2", "MA2331.1", False, 4, -1, 18),
+        ("MA0162.2", "MA1723.2", True, 0, -3, 14),
+        ("MA0139.2", "MA0139.2", False, 0, 0, 15),
+        ("MA0139.2", "MA1930.2", False, 0, -18, 15),
+        ("MA0139.2", "MA0107.1", True, 0, 4, 10),
+        ("MA0139.2", "MA0149.1", False, 2, 0, 17),
+        ("MA0139.2", "MA2100.1", False, 1, -4, 15),
+        # MA0854.2 is its own reverse complement: both orientations score the same
+        ("MA0139.2", "MA0854.2", True, 0, 0, 8),
+    ],
+)
+def test_matches_matrix_aligner_alignment(
+    jdb, query_id, matrix_id, is_reverse_complement, gaps, offset, alignment_length
+):
+    result = align_score(jdb.fetch_motif_by_id(query_id), jdb.fetch_motif_by_id(matrix_id))
+    assert result.is_reverse_complement is is_reverse_complement
+    assert result.gaps == gaps
+    assert result.offset == offset
+    assert result.alignment_length == alignment_length
+
+
+def test_inserted_columns_match_matrix_aligner_alignment(jdb, ctcf):
+    # matrix_aligner, query = CTCF MA0139.2 with two flat columns inserted after column 7
+    query = with_flat_columns(ctcf, position=7, how_many=2)
+    own_row = align_score(query, jdb.fetch_motif_by_id("MA0139.2"))
+    assert (own_row.gaps, own_row.offset, own_row.alignment_length) == (2, 0, 17)
+    other_row = align_score(query, jdb.fetch_motif_by_id("MA1930.2"))
+    assert (other_row.gaps, other_row.offset, other_row.alignment_length) == (9, -7, 26)
 
 
 @pytest.mark.parametrize(
@@ -134,7 +168,7 @@ def test_reverse_complement_does_not_change_the_score(jdb, egr1):
 def test_inserted_columns_cost_the_gap_penalty(ctcf):
     one = align_score(with_flat_columns(ctcf, 7, 1), ctcf)
     two = align_score(with_flat_columns(ctcf, 7, 2), ctcf)
-    assert one.gaps == two.gaps == 1
+    assert (one.gaps, two.gaps) == (1, 2)
     assert one.score == pytest.approx(30.0 - 3.0)
     assert two.score == pytest.approx(30.0 - 3.0 - 0.01)
 

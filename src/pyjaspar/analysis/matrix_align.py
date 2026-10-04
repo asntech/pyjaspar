@@ -1,11 +1,12 @@
 """Search a set of profiles with a query motif.
 
 ``search_profiles`` scores a query motif against candidate profiles and ranks
-them. The scoring implemented here is the one of JASPAR's "Matrix Align" web
-tool: a semi-global variant of the Needleman-Wunsch algorithm that permits at
-most one internal gap (Sandelin et al., Funct Integr Genomics 3:125-134, 2003,
-as documented for TFBS::Matrix::Alignment; the default gap penalties are the
-documented ones).
+them. The scoring is the one of JASPAR's "Matrix Align" web tool, which runs the
+``matrix_aligner`` program (Sandelin et al., Funct Integr Genomics 3:125-134,
+2003; source in the ``jaspar_tools`` repository of the JASPAR team): a
+semi-global variant of the Needleman-Wunsch algorithm that permits at most one
+internal gap. This is an independent numpy implementation of that method; the
+default gap penalties are the program's defaults.
 """
 
 from __future__ import annotations
@@ -27,6 +28,10 @@ if TYPE_CHECKING:
 
 _BASES = "ACGT"
 _MATRIX_ID = re.compile(r"[A-Z]+(\d+)\.(\d+)")
+# Scores whose relative difference is below this count as equal: a couple of
+# units in the last place of single precision, which the reference program uses
+# and which cannot tell such scores apart.
+_TIE_TOLERANCE = 2e-7
 
 
 @dataclass(frozen=True)
@@ -37,13 +42,22 @@ class AlignScore:
         score: Alignment score. Each aligned column contributes between 0 and 2,
             and a gap subtracts its penalty.
         is_reverse_complement: True if the reverse complement of the second
-            profile aligned better.
-        gaps: Number of internal gap runs in the best alignment (0 or 1).
+            profile aligned better. When both orientations score the same, this
+            is True.
+        gaps: Number of gap columns in the best alignment (0 if it has no gap);
+            the gap is one run of that many columns.
+        offset: Position in the first profile minus position in the second at
+            the first pair of aligned columns (positions count from 1, in the
+            orientation of the second profile that was aligned).
+        alignment_length: Number of columns of the alignment, gap columns
+            included and the free overhangs excluded.
     """
 
     score: float
     is_reverse_complement: bool
     gaps: int
+    offset: int
+    alignment_length: int
 
 
 @dataclass(frozen=True)
@@ -63,9 +77,14 @@ class ProfileHit:
             and never raised again. The value therefore depends on the set of
             candidates, and it can exceed 100.
         is_reverse_complement: True if the candidate's reverse complement
-            aligned better.
-        gaps: Number of internal gap runs in the best alignment (0 or 1).
+            aligned better (also True when both orientations score the same).
+        gaps: Number of gap columns in the best alignment (0 if it has no gap).
         width: Number of columns of the candidate.
+        offset: Position in the query minus position in the candidate at the
+            first pair of aligned columns (positions count from 1, in the
+            orientation of the candidate that was aligned).
+        alignment_length: Number of columns of the alignment, gap columns
+            included and the free overhangs excluded.
     """
 
     matrix_id: str
@@ -75,6 +94,8 @@ class ProfileHit:
     is_reverse_complement: bool
     gaps: int
     width: int
+    offset: int
+    alignment_length: int
 
 
 def _frequencies(motif: Motif) -> np.ndarray:
@@ -97,8 +118,8 @@ def _column_similarity(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 def _best_alignment(
     a: np.ndarray, b: np.ndarray, open_penalty: float, ext_penalty: float
-) -> tuple[float, int]:
-    """Best score and number of gap runs for one orientation."""
+) -> tuple[float, int, int, int]:
+    """Best score, gap columns, offset and alignment length for one orientation."""
     sim = _column_similarity(a, b)
     n, m = sim.shape
 
@@ -113,22 +134,42 @@ def _best_alignment(
     for i in range(n - 2, -1, -1):
         suffix[i, :-1] += suffix[i + 1, 1:]
 
-    best = float(prefix.max())
-    gaps = 0
+    # Ungapped: the alignment ends at the best cell of ``prefix`` and starts at
+    # the beginning of its diagonal. Columns with similarity 0 at the end do not
+    # lower the score, and the program counts them in the alignment, so the last
+    # best cell is taken.
+    flat = prefix.ravel()
+    cell = int(np.flatnonzero(flat == flat.max())[-1])
+    i, j = divmod(cell, m)
+    best = float(flat[cell])
+    gaps, offset, length = 0, i - j, min(i, j) + 1
 
-    # One gap run of length k: the alignment follows one diagonal up to a cell,
-    # skips k columns of one profile, then follows the next diagonal.
+    # One gap run of k columns: the alignment follows one diagonal up to a cell
+    # (i, j), skips k columns of one profile, then follows the next diagonal.
     for k in range(1, max(n, m)):
         cost = open_penalty + (k - 1) * ext_penalty
-        if n - k - 1 >= 1 and m >= 2:
-            gapped = float((prefix[: n - k - 1, : m - 1] + suffix[k + 1 :, 1:]).max()) - cost
+        for in_second in (False, True):
+            if in_second:
+                if not (m - k - 1 >= 1 and n >= 2):
+                    continue
+                total = prefix[: n - 1, : m - k - 1] + suffix[1:, k + 1 :]
+            else:
+                if not (n - k - 1 >= 1 and m >= 2):
+                    continue
+                total = prefix[: n - k - 1, : m - 1] + suffix[k + 1 :, 1:]
+            gapped = float(total.max()) - cost
             if gapped > best:
-                best, gaps = gapped, 1
-        if m - k - 1 >= 1 and n >= 2:
-            gapped = float((prefix[: n - 1, : m - k - 1] + suffix[1:, k + 1 :]).max()) - cost
-            if gapped > best:
-                best, gaps = gapped, 1
-    return best, gaps
+                best = gapped
+                i, j = np.unravel_index(int(total.argmax()), total.shape)
+                # The second diagonal starts after the gap. Columns with similarity
+                # 0 at its end are not part of the alignment.
+                i2, j2 = (i + 1, j + k + 1) if in_second else (i + k + 1, j + 1)
+                steps = np.arange(min(n - i2, m - j2))
+                positive = np.flatnonzero(sim[i2 + steps, j2 + steps] > 0)
+                tail = int(positive[-1]) + 1 if positive.size else 1
+                gaps, offset = k, int(i - j)
+                length = min(int(i), int(j)) + 1 + k + tail
+    return best, gaps, offset, length
 
 
 def align_score(
@@ -142,7 +183,8 @@ def align_score(
     Columns are compared as frequencies. The alignment may leave columns
     hanging off either end for free and may contain one internal gap, which
     costs ``open_penalty`` for its first column and ``ext_penalty`` for each
-    further column. Both ``b`` and its reverse complement are tried.
+    further column. Both ``b`` and its reverse complement are tried; when they
+    score the same (up to rounding), the reverse complement is reported.
 
     Args:
         a: First profile.
@@ -151,18 +193,19 @@ def align_score(
         ext_penalty: Penalty for each further column of the same gap.
 
     Returns:
-        The best score, the orientation of ``b`` that gave it, and the number
-        of gap runs used.
+        The best score, the orientation of ``b`` that gave it, the number of
+        gap columns, the offset of the first aligned pair, and the number of
+        columns of the alignment.
 
     Raises:
         ValueError: If a profile has a column with no counts.
     """
     fa, fb = _frequencies(a), _frequencies(b)
-    forward, forward_gaps = _best_alignment(fa, fb, open_penalty, ext_penalty)
-    reverse, reverse_gaps = _best_alignment(fa, fb[::-1, ::-1], open_penalty, ext_penalty)
-    if reverse > forward:
-        return AlignScore(reverse, True, reverse_gaps)
-    return AlignScore(forward, False, forward_gaps)
+    forward = _best_alignment(fa, fb, open_penalty, ext_penalty)
+    reverse = _best_alignment(fa, fb[::-1, ::-1], open_penalty, ext_penalty)
+    if forward[0] - reverse[0] > _TIE_TOLERANCE * max(forward[0], reverse[0]):
+        return AlignScore(forward[0], False, *forward[1:])
+    return AlignScore(reverse[0], True, *reverse[1:])
 
 
 def _matrix_id_order(candidates: list[Motif]) -> list[int]:
@@ -228,6 +271,8 @@ def search_profiles(
             is_reverse_complement=r.is_reverse_complement,
             gaps=r.gaps,
             width=c.length,
+            offset=r.offset,
+            alignment_length=r.alignment_length,
         )
         for i, (c, r) in enumerate(zip(candidates, results, strict=True))
     ]
