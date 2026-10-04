@@ -4,6 +4,7 @@ Requires the ``analysis`` extra: ``pip install pyjaspar[analysis]``
 """
 
 from .enrichment import EnrichmentResult, motif_enrichment
+from .meme import TomtomHit, tomtom
 from .scanning import ScanHit, scan_sequence
 from .similarity import (
     best_correlation,
@@ -21,4 +22,6 @@ __all__ = [
     "scan_sequence",
     "EnrichmentResult",
     "motif_enrichment",
+    "TomtomHit",
+    "tomtom",
 ]
