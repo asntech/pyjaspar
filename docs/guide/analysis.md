@@ -123,3 +123,49 @@ Results are sorted by p-value with Benjamini-Hochberg correction applied.
 | `fold_enrichment` | float | Foreground hit rate / background hit rate |
 | `pvalue` | float | Fisher's exact test p-value |
 | `qvalue` | float | Benjamini-Hochberg adjusted p-value |
+
+## Profile inference
+
+Predict which JASPAR profiles a protein binds from its amino acid sequence
+(full length or just the DNA-binding domain). The protein is compared with the
+DNA-binding domains of TFs that already have a JASPAR profile, so the hits are
+its closest *relatives*. The search runs on a JASPAR server (the
+[JASPAR profile inference tool](https://github.com/wassermanlab/JASPAR-inference-tool)),
+so it needs network access and takes several seconds.
+
+```python
+from pyjaspar.analysis import infer_profiles
+
+dbd = "ACPVETCDRRFSRSDELTRHIRIHTGQKPFQCRICMRNFSRSDHLTTHIRTHTGEKPFACEICGRKFARSDERKRHTKIHMRQKDKKAEKGA"  # a zinc-finger domain
+
+hits = infer_profiles(dbd)
+
+for hit in hits:
+    print(f"{hit.matrix_id}  {hit.name:<5}  E-value={hit.evalue:<9.2e}  DBD identity={hit.dbd_identity:.0%}")
+# MA0162.2  EGR1   E-value=1.90e-63   DBD identity=94%
+# MA0732.1  EGR3   E-value=2.34e-59   DBD identity=90%
+# MA0472.2  EGR2   E-value=1.50e-54   DBD identity=93%
+# MA0733.1  EGR4   E-value=9.15e-51   DBD identity=77%
+```
+
+The server returns matrix IDs and logo URLs, not the matrices themselves.
+`JASPAR2024` is searched by default; pass `release=` to search another. The
+matrix IDs belong to that release, so fetch the profile from the same one:
+
+```python
+motif = JasparDB("JASPAR2024").fetch_motif_by_id(hits[0].matrix_id)
+print(motif.consensus)  # CCCCCGCCCCCGCC
+```
+
+An empty list means the server found no matching profile.
+
+### InferenceHit fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `matrix_id` | str | JASPAR matrix ID |
+| `name` | str | Name of the TF the profile belongs to (a relative of your protein) |
+| `evalue` | float | E-value of the DNA-binding domain match; lower is more significant |
+| `dbd_identity` | float | Share of identical amino acids in the DNA-binding domain, as a fraction (0-1) |
+| `logo_url` | str | URL of the profile's sequence logo (SVG) |
+| `release` | str | JASPAR release the matrix ID belongs to |

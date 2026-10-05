@@ -4,6 +4,7 @@ Requires the ``analysis`` extra: ``pip install pyjaspar[analysis]``
 """
 
 from .enrichment import EnrichmentResult, motif_enrichment
+from .inference import InferenceHit, infer_profiles
 from .scanning import ScanHit, scan_sequence
 from .similarity import (
     best_correlation,
@@ -17,6 +18,8 @@ __all__ = [
     "euclidean_distance",
     "kl_divergence",
     "pearson_correlation",
+    "InferenceHit",
+    "infer_profiles",
     "ScanHit",
     "scan_sequence",
     "EnrichmentResult",
