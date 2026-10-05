@@ -25,6 +25,15 @@
       filters:
         - "!^_"
 
+## Alignment
+
+::: pyjaspar.analysis.alignment
+    options:
+      show_source: true
+      members_order: source
+      filters:
+        - "!^_"
+
 ## Enrichment
 
 ::: pyjaspar.analysis.enrichment
