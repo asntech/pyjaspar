@@ -212,7 +212,7 @@ def similarity(
     """
     _require_analysis()
     from pyjaspar.analysis import (
-        best_correlation,
+        align_motifs,
         euclidean_distance,
         kl_divergence,
         pearson_correlation,
@@ -230,14 +230,18 @@ def similarity(
         sys.exit(1)
 
     if find_best:
-        score, best_offset, is_rc = best_correlation(motif1, motif2)
+        try:
+            best = align_motifs(motif1, motif2, method="pearson")
+        except ValueError as e:
+            click.echo(click.style(str(e), fg="red"), err=True)
+            sys.exit(1)
         result = {
             "motif1": id1,
             "motif2": id2,
             "metric": "pearson",
-            "best_score": round(score, 6),
-            "best_offset": best_offset,
-            "is_reverse_complement": is_rc,
+            "best_score": round(best.correlation, 6),
+            "best_offset": best.offset,
+            "is_reverse_complement": best.is_reverse_complement,
         }
         _print_output(result, fmt, _SIMILARITY_BEST_TSV_KEYS)
     else:
@@ -304,7 +308,7 @@ def align(
     renders it as an actual gapped alignment, rather than just a score.
     """
     _require_analysis()
-    from pyjaspar.analysis import align_motifs
+    from pyjaspar.analysis import align_motifs, format_alignment
 
     jdb = JasparDB(f"JASPAR{release}")
     motif1 = jdb.fetch_motif_by_id(id1)
@@ -317,12 +321,17 @@ def align(
         click.echo(click.style(f"No motif found with ID: {id2}", fg="red"), err=True)
         sys.exit(1)
 
-    result = align_motifs(
-        motif1,
-        motif2,
-        min_overlap=min_overlap,
-        both_strands=not no_reverse_complement,
-    )
+    try:
+        result = align_motifs(
+            motif1,
+            motif2,
+            method="pearson",
+            min_overlap=min_overlap,
+            both_strands=not no_reverse_complement,
+        )
+    except ValueError as e:
+        click.echo(click.style(str(e), fg="red"), err=True)
+        sys.exit(1)
 
     if fmt == "json":
         data = {
@@ -334,7 +343,7 @@ def align(
         }
         _print_output(data, "json")
     else:
-        click.echo(click.style(str(result.alignment), fg="green"))
+        click.echo(click.style(format_alignment(motif1, motif2, result), fg="green"))
         click.echo(
             f"score={result.score:.4f} offset={result.offset} "
             f"is_reverse_complement={result.is_reverse_complement}"

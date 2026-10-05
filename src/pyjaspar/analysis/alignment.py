@@ -1,108 +1,111 @@
-"""Motif alignment view.
+"""Pairwise motif comparison and its text display.
 
-Renders the best offset/orientation between two motifs as an actual
-gapped, side-by-side alignment, rather than just a score.
+``align_motifs`` compares two motifs with one of the methods in ``methods.py``
+(``"matrix_align"`` by default, or ``"pearson"``) and returns the score and the
+aligned columns. ``format_alignment`` turns such a result into a side-by-side
+text alignment of the two consensus sequences.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
 from Bio.Align import Alignment
 
-from ._alignment_search import find_best_offset
-from .similarity import pearson_correlation
+from .methods import AlignmentPath, AlignmentResult, _compare_pair, _resolve_options
 
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
 
 
-@dataclass
-class AlignmentResult:
-    """Rendered alignment between two motifs.
-
-    Attributes:
-        motif1_id: First motif's JASPAR matrix ID.
-        motif2_id: Second motif's JASPAR matrix ID.
-        score: Pearson correlation at the best offset.
-        offset: Position offset of motif2 relative to motif1.
-        is_reverse_complement: Whether motif2 was reverse-complemented.
-        alignment: The rendered Bio.Align.Alignment. ``str(alignment)``
-            gives a target/query display with a match/mismatch line.
-    """
-
-    motif1_id: str
-    motif2_id: str
-    score: float
-    offset: int
-    is_reverse_complement: bool
-    alignment: Alignment
-
-
-def _offset_to_coordinates(len1: int, len2: int, offset: int) -> np.ndarray:
-    """Convert an alignment offset into Bio.Align.Alignment coordinates.
-
-    Positive offset means sequence 2 is shifted right relative to sequence 1.
-
-    Args:
-        len1: Length of the first sequence.
-        len2: Length of the second sequence.
-        offset: Position offset of sequence 2 relative to sequence 1.
-
-    Returns:
-        A (2, n) array of per-sequence coordinates suitable for
-        ``Bio.Align.Alignment(sequences, coordinates)``.
-    """
-    shift = max(0, -offset)
-    s1_start, s1_end = shift, shift + len1
-    s2_start, s2_end = shift + offset, shift + offset + len2
-    overlap_start = max(s1_start, s2_start)
-    overlap_end = min(s1_end, s2_end)
-
-    points = sorted({s1_start, s2_start, overlap_start, overlap_end, s1_end, s2_end})
-    c1 = [max(0, min(len1, p - s1_start)) for p in points]
-    c2 = [max(0, min(len2, p - s2_start)) for p in points]
-    return np.array([c1, c2])
-
-
 def align_motifs(
     motif1: Motif,
     motif2: Motif,
-    min_overlap: int = 4,
+    *,
+    method: str = "matrix_align",
     both_strands: bool = True,
+    min_overlap: int | None = None,
+    open_penalty: float | None = None,
+    ext_penalty: float | None = None,
 ) -> AlignmentResult:
-    """Align two motifs and render the result.
-
-    Finds the best offset and orientation between the two motifs, then
-    builds the actual gapped alignment view for it.
+    """Compare two motifs and return the score and the aligned columns.
 
     Args:
-        motif1: First motif (reference).
-        motif2: Second motif.
-        min_overlap: Minimum overlapping columns required.
-        both_strands: If True, also try the reverse complement of motif2.
+        motif1: First motif (the query).
+        motif2: Second motif; it is also tried reverse-complemented.
+        method: ``"matrix_align"`` (default) or ``"pearson"``; see ``methods.py``.
+        both_strands: If True, also try the reverse complement of ``motif2``.
+        min_overlap: ``"pearson"`` only: minimum overlapping columns (default 4).
+        open_penalty: ``"matrix_align"`` only: cost of a gap's first column (default 3.0).
+        ext_penalty: ``"matrix_align"`` only: cost of each further gap column (default 0.01).
 
     Returns:
-        AlignmentResult with the best score/offset/orientation plus the
-        rendered alignment.
+        A ``MatrixAlignResult`` or a ``PearsonResult``. Use ``format_alignment`` to
+        display it.
+
+    Raises:
+        ValueError: If the method or an option is invalid, an option of the other
+            method is given, a motif has invalid counts, or (``"pearson"``) a motif
+            is shorter than ``min_overlap``.
     """
-    score, offset, is_rc = find_best_offset(
-        motif1, motif2, pearson_correlation, min_overlap, both_strands
+    options = _resolve_options(
+        method,
+        both_strands=both_strands,
+        min_overlap=min_overlap,
+        open_penalty=open_penalty,
+        ext_penalty=ext_penalty,
     )
-    motif2_used = motif2.reverse_complement() if is_rc else motif2
+    return _compare_pair(motif1, motif2, method, options)
 
-    seq1 = str(motif1.consensus)
-    seq2 = str(motif2_used.consensus)
-    coordinates = _offset_to_coordinates(len(seq1), len(seq2), offset)
-    alignment = Alignment([seq1, seq2], coordinates)
 
-    return AlignmentResult(
-        motif1_id=motif1.matrix_id,
-        motif2_id=motif2.matrix_id,
-        score=score,
-        offset=offset,
-        is_reverse_complement=is_rc,
-        alignment=alignment,
-    )
+def _display_coordinates(path: AlignmentPath) -> np.ndarray:
+    """The path extended to both full motifs, for display only.
+
+    End columns that hang off are shown: where both motifs have unscored columns
+    at an end, they are shown side by side up to the shorter flank, and the rest of
+    the longer flank is shown against gaps.
+    """
+    query, target = path.coordinates
+    n, m = path.query_length, path.target_length
+    paired_start = min(query[0], target[0])
+    paired_end = min(n - query[-1], m - target[-1])
+    vertices = [(0, 0), (query[0] - paired_start, target[0] - paired_start)]
+    vertices += list(zip(query, target, strict=True))
+    vertices += [(query[-1] + paired_end, target[-1] + paired_end), (n, m)]
+    kept = [vertices[0]]
+    for vertex in vertices[1:]:
+        if vertex != kept[-1]:
+            kept.append(vertex)
+    return np.array(kept).T
+
+
+def format_alignment(motif1: Motif, motif2: Motif, result: AlignmentResult) -> str:
+    """Text alignment of the two consensus sequences for a comparison result.
+
+    Shows both motifs over their full length, including the columns that hang
+    off either end, with the second motif in the orientation that was aligned.
+    The alignment is not recomputed: the aligned columns come from ``result``.
+    The match line compares consensus letters only; it is a visual aid, not the
+    profile score.
+
+    Args:
+        motif1: The first motif given to ``align_motifs``.
+        motif2: The second motif given to ``align_motifs``.
+        result: The result of ``align_motifs(motif1, motif2, ...)``.
+
+    Returns:
+        The alignment block as text.
+
+    Raises:
+        ValueError: If the motif widths do not match the result.
+    """
+    path = result.alignment
+    if motif1.length != path.query_length or motif2.length != path.target_length:
+        raise ValueError(
+            f"The motifs have {motif1.length} and {motif2.length} columns, but the result "
+            f"was computed for {path.query_length} and {path.target_length}"
+        )
+    motif2_used = motif2.reverse_complement() if path.is_reverse_complement else motif2
+    sequences = [str(motif1.consensus), str(motif2_used.consensus)]
+    return str(Alignment(sequences, _display_coordinates(path)))

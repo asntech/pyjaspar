@@ -15,8 +15,6 @@ except ImportError:
         "The pyjaspar.analysis module requires numpy. Install with: pip install pyjaspar[analysis]"
     ) from None
 
-from ._alignment_search import find_best_offset
-
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
 
@@ -79,26 +77,6 @@ def pearson_correlation(
             correlations.append(r)
 
     return float(np.mean(correlations))
-
-
-def best_correlation(
-    motif1: Motif,
-    motif2: Motif,
-    min_overlap: int = 4,
-    both_strands: bool = True,
-) -> tuple[float, int, bool]:
-    """Find the best Pearson correlation across all valid offsets and orientations.
-
-    Args:
-        motif1: First motif (reference).
-        motif2: Second motif.
-        min_overlap: Minimum number of overlapping columns required.
-        both_strands: If True, also try the reverse complement of motif2.
-
-    Returns:
-        Tuple of (best_score, best_offset, is_reverse_complement).
-    """
-    return find_best_offset(motif1, motif2, pearson_correlation, min_overlap, both_strands)
 
 
 def euclidean_distance(

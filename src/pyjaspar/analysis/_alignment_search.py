@@ -1,8 +1,8 @@
 """Offset/orientation search for aligning two motifs' PFM columns.
 
 Finds the relative shift and strand orientation between two motifs that
-maximizes a given column-similarity metric. Used by
-similarity.best_correlation() and alignment.align_motifs().
+maximizes a given column-similarity metric. Used by the ``"pearson"`` method
+in ``methods.py``.
 """
 
 from __future__ import annotations
