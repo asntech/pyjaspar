@@ -35,10 +35,7 @@ for hit in hits:
 
 ## Profile search
 
-`search_profiles()` scores a query motif against a set of profiles and ranks them.
-Build the set with `fetch_motifs`, which has the same filters as the web form of the
-**Matrix Align** tool on the JASPAR web site (collection, taxonomic group, latest or
-all versions).
+`search_profiles()` scores a query motif against a set of profiles and ranks them. Build the set with `fetch_motifs`, which has the same filters as the web form of the **Matrix Align** tool on the JASPAR web site (collection, taxonomic group, latest or all versions).
 
 ```python
 from pyjaspar import JasparDB
@@ -59,34 +56,15 @@ for hit in search_profiles(query, candidates, top=3):
 
 ### Scoring
 
-With the default `method="matrix_align"`, the scoring implemented here is the one of the
-Matrix Align web tool (`method="pearson"` ranks by the best Pearson correlation instead,
-see [Motif alignment](#motif-alignment)). `score` is its
-"Score" column. Every aligned column contributes between
-0 and 2, so a profile aligned with itself scores twice its width, and a longer
-profile tends to score higher. The alignment may leave columns hanging off either
-end for free and may contain one internal gap (`open_penalty=3.0` for its first
-column, `ext_penalty=0.01` for each further column); both the candidate and its
-reverse complement are tried, and the reverse complement is reported when both
-score the same.
+With the default `method="matrix_align"`, the scoring implemented here is the one of the Matrix Align web tool (`method="pearson"` ranks by the best Pearson correlation instead, see [Motif alignment](#motif-alignment)). `score` is its "Score" column. Every aligned column contributes between 0 and 2, so a profile aligned with itself scores twice its width, and a longer profile tends to score higher. The alignment may leave columns hanging off either end for free and may contain one internal gap (`open_penalty=3.0` for its first column, `ext_penalty=0.01` for each further column); both the candidate and its reverse complement are tried, and the reverse complement is reported when both score the same.
 
-`percent_score` reproduces the web tool's "Percent Score" column: `100 * score / (2 * m)`,
-where `m` is the narrowest profile seen so far. `m` starts at the query's width and is
-lowered by each candidate in matrix-ID order, the order of the web tool's table, and is
-never raised again. The value therefore depends on the set of candidates, not only on the
-pair, and it can exceed 100. Use `sort_by="percent_score"` to rank by it.
+`percent_score` reproduces the web tool's "Percent Score" column: `100 * score / (2 * m)`, where `m` is the narrowest profile seen so far. `m` starts at the query's width and is lowered by each candidate in matrix-ID order, the order of the web tool's table, and is never raised again. The value therefore depends on the set of candidates, not only on the pair, and it can exceed 100. Use `sort_by="percent_score"` to rank by it.
 
-The alignment is a semi-global variant of the Needleman-Wunsch algorithm that permits
-one internal gap, as implemented by the `matrix_aligner` program that the web tool runs
-(Sandelin et al., [Funct Integr Genomics 3:125-134, 2003](https://doi.org/10.1007/s10142-003-0086-6);
-source in the [`jaspar_tools`](https://bitbucket.org/CBGR/jaspar_tools) repository). The
-implementation here is independent; `gaps`, `offset` and `alignment_length` follow what that
-program reports.
+The alignment is a semi-global variant of the Needleman-Wunsch algorithm that permits one internal gap, as implemented by the `matrix_aligner` program that the web tool runs (Sandelin et al., [Funct Integr Genomics 3:125-134, 2003](https://doi.org/10.1007/s10142-003-0086-6); source in the [`jaspar_tools`](https://bitbucket.org/CBGR/jaspar_tools) repository). The implementation here is independent; `gaps`, `offset` and `alignment_length` follow what that program reports.
 
 ### MatrixAlignHit fields
 
-The fields after `percent_score` are read from `result`, the comparison of the query
-with the candidate (the same object `align_motifs` returns).
+The fields after `percent_score` are read from `result`, the comparison of the query with the candidate (the same object `align_motifs` returns).
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -155,12 +133,7 @@ All metrics return 0.0 (Pearson) or `float('inf')` (Euclidean, KL) when there is
 
 ## Motif alignment
 
-`align_motifs()` compares two motifs with `method="matrix_align"` (default, the Matrix
-Align scoring described under [Profile search](#profile-search)) or `method="pearson"`
-(the best Pearson correlation over all offsets and both orientations), and returns the
-score and the aligned columns. `format_alignment()` renders the result as a gapped,
-side-by-side alignment of the two consensus sequences. Scores of the two methods are on
-different scales.
+`align_motifs()` compares two motifs with `method="matrix_align"` (default, the Matrix Align scoring described under [Profile search](#profile-search)) or `method="pearson"` (the best Pearson correlation over all offsets and both orientations), and returns the score and the aligned columns. `format_alignment()` renders the result as a gapped, side-by-side alignment of the two consensus sequences. Scores of the two methods are on different scales.
 
 ```python
 from pyjaspar import JasparDB

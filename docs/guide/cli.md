@@ -107,8 +107,7 @@ pyjaspar similarity MA0001.1 MA0002.1 --best --format json
 
 ### align
 
-Find the best offset and orientation between two motifs and show the
-aligned view, rather than just a score.
+Find the best offset and orientation between two motifs and show the aligned view, rather than just a score.
 
 ```bash
 # Basic alignment
