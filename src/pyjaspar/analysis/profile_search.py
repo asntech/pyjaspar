@@ -42,12 +42,11 @@ def search_profiles(
         min_overlap: ``"pearson"`` only: minimum overlapping columns (default 4).
         open_penalty: ``"matrix_align"`` only: cost of a gap's first column (default 3.0).
         ext_penalty: ``"matrix_align"`` only: cost of each further gap column (default 0.01).
-        sort_by: ``"score"`` (default) or ``"percent_score"`` for ``"matrix_align"``;
-            ``"correlation"`` (default, alias ``"score"``) for ``"pearson"``.
+        sort_by: ``"score"`` (default), or ``"percent_score"`` for ``"matrix_align"``.
         top: Return only this many hits; all of them if None.
 
     Returns:
-        ``MatrixAlignHit`` or ``PearsonHit`` objects, best first. Ties are broken by
+        ``ProfileHit`` objects, best first. Ties are broken by
         matrix ID, then by input order.
 
     Raises:

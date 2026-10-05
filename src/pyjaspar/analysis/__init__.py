@@ -8,10 +8,6 @@ from .enrichment import EnrichmentResult, motif_enrichment
 from .methods import (
     AlignmentPath,
     AlignmentResult,
-    MatrixAlignHit,
-    MatrixAlignResult,
-    PearsonHit,
-    PearsonResult,
     ProfileHit,
 )
 from .profile_search import search_profiles
@@ -33,11 +29,7 @@ __all__ = [
     "search_profiles",
     "AlignmentPath",
     "AlignmentResult",
-    "MatrixAlignResult",
-    "PearsonResult",
     "ProfileHit",
-    "MatrixAlignHit",
-    "PearsonHit",
     "EnrichmentResult",
     "motif_enrichment",
 ]

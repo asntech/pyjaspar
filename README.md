@@ -128,7 +128,7 @@ score = pearson_correlation(m1, m2)
 
 # Best alignment across all offsets and orientations
 best = align_motifs(m1, m2, method="pearson")
-score, offset, is_rc = best.correlation, best.offset, best.is_reverse_complement
+score, offset, is_rc = best.score, best.offset, best.is_reverse_complement
 ```
 
 ### Sequence scanning

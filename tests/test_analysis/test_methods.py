@@ -11,8 +11,7 @@ from Bio.motifs.jaspar import Motif
 
 from pyjaspar import JasparDB
 from pyjaspar.analysis import (
-    MatrixAlignHit,
-    PearsonHit,
+    ProfileHit,
     align_motifs,
     search_profiles,
 )
@@ -259,7 +258,7 @@ def test_forward_only(ctcf):
 
 def test_search_default_is_matrix_align(ctcf, sample):
     hits = search_profiles(ctcf, sample)
-    assert all(isinstance(h, MatrixAlignHit) for h in hits)
+    assert all(isinstance(h, ProfileHit) and h.method == "matrix_align" for h in hits)
     assert hits[0].matrix_id == "MA0139.2"
     assert hits[0].score == pytest.approx(30.0)
 
@@ -275,12 +274,12 @@ def test_percent_score_uses_the_narrowest_profile_seen_in_matrix_id_order(ctcf, 
     assert hits["MA0139.2"].percent_score == pytest.approx(250.0)
 
 
-def test_pearson_search_returns_pearson_hits_best_first(ctcf, sample):
+def test_pearson_search_returns_hits_best_first(ctcf, sample):
     hits = search_profiles(ctcf, sample, method="pearson")
-    assert all(isinstance(h, PearsonHit) for h in hits)
-    correlations = [h.correlation for h in hits]
-    assert correlations == sorted(correlations, reverse=True)
-    assert not hasattr(hits[0], "percent_score")
+    assert all(h.method == "pearson" for h in hits)
+    scores = [h.score for h in hits]
+    assert scores == sorted(scores, reverse=True)
+    assert all(h.percent_score is None for h in hits)
     assert search_profiles(ctcf, sample, method="pearson", sort_by="score") == hits
 
 
@@ -294,7 +293,7 @@ def test_every_hit_equals_the_direct_pair_comparison(ctcf, sample, method):
 
 @pytest.mark.parametrize(
     ("method", "sort_by"),
-    [("pearson", "percent_score"), ("pearson", "pvalue"), ("matrix_align", "correlation")],
+    [("pearson", "percent_score"), ("pearson", "correlation"), ("matrix_align", "correlation")],
 )
 def test_inapplicable_sort_fields_are_rejected_before_scoring(ctcf, method, sort_by):
     with pytest.raises(ValueError, match="sort_by"):

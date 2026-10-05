@@ -14,7 +14,7 @@ import pytest
 from Bio.motifs.jaspar import Motif
 
 from pyjaspar import JasparDB
-from pyjaspar.analysis import MatrixAlignHit, align_motifs, search_profiles
+from pyjaspar.analysis import ProfileHit, align_motifs, search_profiles
 
 
 @pytest.fixture(scope="module")
@@ -192,7 +192,7 @@ def test_search_returns_hits_best_first(jdb, ctcf):
     candidates = [jdb.fetch_motif_by_id(i) for i in ("MA1929.2", "MA0139.2", "MA1930.2")]
     hits = search_profiles(ctcf, candidates)
     assert [h.matrix_id for h in hits] == ["MA0139.2", "MA1930.2", "MA1929.2"]
-    assert all(isinstance(h, MatrixAlignHit) for h in hits)
+    assert all(isinstance(h, ProfileHit) for h in hits)
     assert hits[0].name == "CTCF"
     assert hits[0].score == pytest.approx(30.0)
     assert hits[0].width == 15

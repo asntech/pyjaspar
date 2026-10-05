@@ -62,7 +62,7 @@ With the default `method="matrix_align"`, the scoring implemented here is the on
 
 The alignment is a semi-global variant of the Needleman-Wunsch algorithm that permits one internal gap, as implemented by the `matrix_aligner` program that the web tool runs (Sandelin et al., [Funct Integr Genomics 3:125-134, 2003](https://doi.org/10.1007/s10142-003-0086-6); source in the [`jaspar_tools`](https://bitbucket.org/CBGR/jaspar_tools) repository). The implementation here is independent; `gaps`, `offset` and `alignment_length` follow what that program reports.
 
-### MatrixAlignHit fields
+### ProfileHit fields
 
 The fields after `percent_score` are read from `result`, the comparison of the query with the candidate (the same object `align_motifs` returns).
 
@@ -70,9 +70,9 @@ The fields after `percent_score` are read from `result`, the comparison of the q
 |-------|------|-------------|
 | `matrix_id` | str | JASPAR matrix ID of the candidate |
 | `name` | str | Name of the TF the candidate belongs to |
-| `result` | `MatrixAlignResult` | The comparison of the query with this candidate |
+| `result` | `AlignmentResult` | The comparison of the query with this candidate |
 | `score` | float | Alignment score (the web tool's "Score") |
-| `percent_score` | float | The web tool's "Percent Score" (depends on the set of candidates, see above) |
+| `percent_score` | float | The web tool's "Percent Score" (depends on the set of candidates, see above); None with `method="pearson"` |
 | `is_reverse_complement` | bool | The candidate's reverse complement aligned better |
 | `gaps` | int | Gap columns in the best alignment (0 if it has no gap); the gap is one run of that many columns |
 | `width` | int | Number of columns of the candidate |
@@ -99,7 +99,7 @@ print(f"Pearson r = {score:.4f}")
 
 # Best alignment across all offsets and orientations
 best = align_motifs(m1, m2, method="pearson", min_overlap=4)
-print(f"Best: r={best.correlation:.4f}, offset={best.offset}, "
+print(f"Best: r={best.score:.4f}, offset={best.offset}, "
       f"reverse_complement={best.is_reverse_complement}")
 ```
 
@@ -155,12 +155,12 @@ print(f"score={result.score:.4f} offset={result.offset} "
 
 ### Result fields
 
-`align_motifs` returns a `MatrixAlignResult` or a `PearsonResult`.
+`align_motifs` returns an `AlignmentResult`.
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `motif1_id`, `motif2_id` | str | The two motifs' JASPAR matrix IDs |
-| `score` | float | Matrix Align score, or the Pearson correlation (also available as `correlation`) |
+| `score` | float | Matrix Align score, or the Pearson correlation |
 | `method` | str | `"matrix_align"` or `"pearson"` |
 | `alignment` | `AlignmentPath` | The aligned columns: zero-based column boundaries of both motifs (`coordinates`), without the columns that hang off either end |
 | `offset` | int | Position in motif1 minus position in motif2 at the first aligned pair |

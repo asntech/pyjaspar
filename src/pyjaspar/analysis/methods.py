@@ -101,31 +101,29 @@ class AlignmentPath:
 
 
 @dataclass(frozen=True)
-class PearsonResult:
-    """Two motifs compared with ``method="pearson"``.
+class AlignmentResult:
+    """Two motifs compared by ``align_motifs``.
 
     Attributes:
+        method: ``"matrix_align"`` or ``"pearson"``.
         motif1_id: Matrix ID of the first motif.
         motif2_id: Matrix ID of the second motif.
-        correlation: Mean column-wise Pearson correlation of the aligned columns, in [-1, 1].
-        alignment: The aligned columns (no internal gap).
-        parameters: The options used (``min_overlap``, ``both_strands``).
+        score: For ``"matrix_align"``, the alignment score: each aligned column
+            contributes between 0 and 2, and the gap, if any, subtracts its cost
+            (the "Score" column of the JASPAR web tool). For ``"pearson"``, the mean
+            column-wise Pearson correlation of the aligned columns, in [-1, 1].
+        alignment: The aligned columns (at most one internal gap for
+            ``"matrix_align"``, none for ``"pearson"``).
+        parameters: The options used (``open_penalty``, ``ext_penalty`` and
+            ``both_strands``, or ``min_overlap`` and ``both_strands``).
     """
 
+    method: str
     motif1_id: str | None
     motif2_id: str | None
-    correlation: float
+    score: float
     alignment: AlignmentPath
     parameters: dict[str, Any]
-
-    @property
-    def method(self) -> str:
-        return "pearson"
-
-    @property
-    def score(self) -> float:
-        """The correlation (same value as ``correlation``)."""
-        return self.correlation
 
     @property
     def offset(self) -> int:
@@ -149,54 +147,25 @@ class PearsonResult:
 
 
 @dataclass(frozen=True)
-class MatrixAlignResult:
-    """Two motifs compared with ``method="matrix_align"``.
+class ProfileHit:
+    """A candidate profile found by ``search_profiles``.
 
     Attributes:
-        motif1_id: Matrix ID of the first motif.
-        motif2_id: Matrix ID of the second motif.
-        score: Alignment score: each aligned column contributes between 0 and 2,
-            and the gap, if any, subtracts its cost. This is the "Score" column of
-            the JASPAR web tool.
-        alignment: The aligned columns (at most one internal gap run).
-        parameters: The options used (``open_penalty``, ``ext_penalty``, ``both_strands``).
+        matrix_id: Matrix ID of the candidate.
+        name: Name of the TF the candidate belongs to.
+        result: The comparison of the query with this candidate.
+        percent_score: For ``"matrix_align"``, the "Percent Score" column of the
+            JASPAR web tool, ``100 * score / (2 * m)``, where ``m`` is the narrowest
+            profile seen so far. ``m`` starts at the query's width and is lowered by
+            each candidate in matrix-ID order (the order of the web tool's table),
+            and never raised again. It therefore depends on the set of candidates,
+            and it can exceed 100. None for ``"pearson"``.
     """
 
-    motif1_id: str | None
-    motif2_id: str | None
-    score: float
-    alignment: AlignmentPath
-    parameters: dict[str, Any]
-
-    @property
-    def method(self) -> str:
-        return "matrix_align"
-
-    @property
-    def offset(self) -> int:
-        return self.alignment.offset
-
-    @property
-    def is_reverse_complement(self) -> bool:
-        return self.alignment.is_reverse_complement
-
-    @property
-    def overlap(self) -> int:
-        return self.alignment.overlap
-
-    @property
-    def gaps(self) -> int:
-        return self.alignment.gaps
-
-    @property
-    def alignment_length(self) -> int:
-        return self.alignment.alignment_length
-
-
-class _HitProperties:
-    """Read-only access to the fields of a hit's comparison result."""
-
-    result: PearsonResult | MatrixAlignResult
+    matrix_id: str | None
+    name: str | None
+    result: AlignmentResult
+    percent_score: float | None = None
 
     @property
     def method(self) -> str:
@@ -234,50 +203,6 @@ class _HitProperties:
     def width(self) -> int:
         """Number of columns of the candidate."""
         return self.result.alignment.target_length
-
-
-@dataclass(frozen=True)
-class PearsonHit(_HitProperties):
-    """A candidate profile found by ``search_profiles(..., method="pearson")``.
-
-    Attributes:
-        matrix_id: Matrix ID of the candidate.
-        name: Name of the TF the candidate belongs to.
-        result: The comparison of the query with this candidate.
-    """
-
-    matrix_id: str | None
-    name: str | None
-    result: PearsonResult
-
-    @property
-    def correlation(self) -> float:
-        return self.result.correlation
-
-
-@dataclass(frozen=True)
-class MatrixAlignHit(_HitProperties):
-    """A candidate profile found by ``search_profiles(..., method="matrix_align")``.
-
-    Attributes:
-        matrix_id: Matrix ID of the candidate.
-        name: Name of the TF the candidate belongs to.
-        result: The comparison of the query with this candidate.
-        percent_score: The "Percent Score" column of the JASPAR web tool,
-            ``100 * score / (2 * m)``, where ``m`` is the narrowest profile seen so
-            far. ``m`` starts at the query's width and is lowered by each candidate
-            in matrix-ID order (the order of the web tool's table), and never raised
-            again. It therefore depends on the set of candidates, and it can exceed 100.
-    """
-
-    matrix_id: str | None
-    name: str | None
-    result: MatrixAlignResult
-    percent_score: float
-
-
-AlignmentResult = PearsonResult | MatrixAlignResult
-ProfileHit = PearsonHit | MatrixAlignHit
 
 
 def _matrix_id(motif: Motif) -> str | None:
@@ -365,7 +290,7 @@ def _pearson_path(len1: int, len2: int, offset: int, is_rc: bool) -> AlignmentPa
     )
 
 
-def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> PearsonResult:
+def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> AlignmentResult:
     min_overlap = options["min_overlap"]
     for motif in (a, b):
         if motif.length < min_overlap:
@@ -376,10 +301,11 @@ def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> PearsonResu
     score, offset, is_rc = find_best_offset(
         a, b, pearson_correlation, min_overlap, options["both_strands"]
     )
-    return PearsonResult(
+    return AlignmentResult(
+        method="pearson",
         motif1_id=_matrix_id(a),
         motif2_id=_matrix_id(b),
-        correlation=float(score),
+        score=float(score),
         alignment=_pearson_path(a.length, b.length, offset, is_rc),
         parameters=dict(options),
     )
@@ -387,13 +313,14 @@ def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> PearsonResu
 
 def _compare_matrix_align(
     a: Motif, b: Motif, options: dict[str, Any], query_frequencies: np.ndarray | None = None
-) -> MatrixAlignResult:
+) -> AlignmentResult:
     fa = _frequencies(a) if query_frequencies is None else query_frequencies
     fb = _frequencies(b)
     score, is_rc, coordinates = align_frequencies(
         fa, fb, options["open_penalty"], options["ext_penalty"], options["both_strands"]
     )
-    return MatrixAlignResult(
+    return AlignmentResult(
+        method="matrix_align",
         motif1_id=_matrix_id(a),
         motif2_id=_matrix_id(b),
         score=score,
@@ -436,21 +363,21 @@ def _compare_many(
         _validate_profile(candidate)
     if method == "pearson":
         return [
-            PearsonHit(_matrix_id(c), getattr(c, "name", None), _compare_pearson(query, c, options))
+            ProfileHit(_matrix_id(c), getattr(c, "name", None), _compare_pearson(query, c, options))
             for c in candidates
         ]
 
     query_frequencies = _frequencies(query)
     results = [_compare_matrix_align(query, c, options, query_frequencies) for c in candidates]
     # The web tool divides by the narrowest profile seen so far, going through
-    # its table in matrix-ID order; see MatrixAlignHit.percent_score.
+    # its table in matrix-ID order; see ProfileHit.percent_score.
     narrowest = query.length
     percent = {}
     for i in _matrix_id_order(candidates):
         narrowest = min(narrowest, candidates[i].length)
         percent[i] = 100 * results[i].score / (2 * narrowest)
     return [
-        MatrixAlignHit(_matrix_id(c), getattr(c, "name", None), r, percent[i])
+        ProfileHit(_matrix_id(c), getattr(c, "name", None), r, percent[i])
         for i, (c, r) in enumerate(zip(candidates, results, strict=True))
     ]
 
@@ -458,14 +385,10 @@ def _compare_many(
 def _sort_key(method: object, sort_by: str | None) -> Callable[[Any], float]:
     """Key that sorts hits best first, ascending."""
     method = _check_method(method)
-    if method == "pearson":
-        if sort_by in (None, "correlation", "score"):
-            return lambda hit: -hit.correlation
-        raise ValueError(
-            f"sort_by must be 'correlation' or 'score' for method='pearson', not {sort_by!r}"
-        )
     if sort_by in (None, "score"):
         return lambda hit: -hit.score
+    if method == "pearson":
+        raise ValueError(f"sort_by must be 'score' for method='pearson', not {sort_by!r}")
     if sort_by == "percent_score":
         return lambda hit: -hit.percent_score
     raise ValueError(

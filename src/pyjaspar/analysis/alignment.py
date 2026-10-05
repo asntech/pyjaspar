@@ -41,8 +41,7 @@ def align_motifs(
         ext_penalty: ``"matrix_align"`` only: cost of each further gap column (default 0.01).
 
     Returns:
-        A ``MatrixAlignResult`` or a ``PearsonResult``. Use ``format_alignment`` to
-        display it.
+        An ``AlignmentResult``. Use ``format_alignment`` to display it.
 
     Raises:
         ValueError: If the method or an option is invalid, an option of the other

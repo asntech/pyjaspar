@@ -10,8 +10,7 @@ from Bio.motifs.jaspar import Motif
 from pyjaspar import JasparDB
 from pyjaspar.analysis import (
     AlignmentPath,
-    MatrixAlignResult,
-    PearsonResult,
+    AlignmentResult,
     align_motifs,
     format_alignment,
 )
@@ -48,7 +47,8 @@ def one_hot(sequence, matrix_id="X"):
 
 def test_default_method_is_matrix_align(motif_agl3, motif_runx1):
     result = align_motifs(motif_agl3, motif_runx1)
-    assert isinstance(result, MatrixAlignResult)
+    assert isinstance(result, AlignmentResult)
+    assert result.method == "matrix_align"
     assert result.method == "matrix_align"
     assert result.parameters == {"open_penalty": 3.0, "ext_penalty": 0.01, "both_strands": True}
 
@@ -56,9 +56,8 @@ def test_default_method_is_matrix_align(motif_agl3, motif_runx1):
 def test_pearson_self(motif_agl3):
     """Self-alignment should have correlation 1.0, offset 0, no reverse complement."""
     result = align_motifs(motif_agl3, motif_agl3, method="pearson")
-    assert isinstance(result, PearsonResult)
-    assert result.correlation > 0.99
-    assert result.score == result.correlation
+    assert result.method == "pearson"
+    assert result.score > 0.99
     assert result.offset == 0
     assert result.is_reverse_complement is False
     assert isinstance(result.alignment, AlignmentPath)
@@ -67,7 +66,7 @@ def test_pearson_self(motif_agl3):
 
 def test_pearson_different(motif_agl3, motif_runx1):
     result = align_motifs(motif_agl3, motif_runx1, method="pearson")
-    assert isinstance(result.correlation, float)
+    assert isinstance(result.score, float)
     assert isinstance(result.offset, int)
     assert isinstance(result.is_reverse_complement, bool)
     assert result.motif1_id == motif_agl3.matrix_id
@@ -80,7 +79,7 @@ def test_pearson_score_is_reproducible_from_pearson_correlation(motif_agl3, moti
     result = align_motifs(motif_agl3, motif_runx1, method="pearson")
     motif2_used = motif_runx1.reverse_complement() if result.is_reverse_complement else motif_runx1
     recomputed = pearson_correlation(motif_agl3, motif2_used, result.offset)
-    assert recomputed == pytest.approx(result.correlation)
+    assert recomputed == pytest.approx(result.score)
 
 
 def test_pearson_overlap_width(motif_agl3, motif_runx1):
@@ -136,7 +135,9 @@ def test_display_shows_the_internal_gap_and_both_full_motifs():
 def test_display_uses_the_stored_path_without_recomputing():
     query, target = one_hot("ACGTACGT"), one_hot("ACGTACGT")
     shifted = AlignmentPath(8, 8, ((2, 6), (0, 4)), False)
-    result = PearsonResult("X", "X", 0.0, shifted, {"min_overlap": 4, "both_strands": True})
+    result = AlignmentResult(
+        "pearson", "X", "X", 0.0, shifted, {"min_overlap": 4, "both_strands": True}
+    )
     expected = str(
         Alignment(["ACGTACGT", "ACGTACGT"], np.array([[0, 2, 6, 8, 8], [0, 0, 4, 6, 8]]))
     )

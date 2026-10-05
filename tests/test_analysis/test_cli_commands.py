@@ -36,7 +36,7 @@ def test_similarity_best_json_is_the_pearson_alignment(motifs):
     }
     expected = align_motifs(*motifs, method="pearson")
     assert data["metric"] == "pearson"
-    assert data["best_score"] == round(expected.correlation, 6)
+    assert data["best_score"] == round(expected.score, 6)
     assert data["best_offset"] == expected.offset
     assert data["is_reverse_complement"] == expected.is_reverse_complement
 
@@ -73,7 +73,7 @@ def test_align_text_shows_the_pearson_alignment(motifs):
     expected = align_motifs(*motifs, method="pearson")
     assert format_alignment(*motifs, expected) in result.output
     assert (
-        f"score={expected.correlation:.4f} offset={expected.offset} "
+        f"score={expected.score:.4f} offset={expected.offset} "
         f"is_reverse_complement={expected.is_reverse_complement}"
     ) in result.output
 
@@ -83,7 +83,7 @@ def test_align_json_keys(motifs):
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert set(data) == {"motif1", "motif2", "score", "offset", "is_reverse_complement"}
-    assert data["score"] == round(align_motifs(*motifs, method="pearson").correlation, 6)
+    assert data["score"] == round(align_motifs(*motifs, method="pearson").score, 6)
 
 
 def test_align_no_reverse_complement():

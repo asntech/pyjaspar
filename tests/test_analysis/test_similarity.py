@@ -48,15 +48,15 @@ def test_pearson_no_overlap(motif_agl3, motif_runx1):
 
 def test_best_pearson_alignment(motif_agl3, motif_runx1):
     result = align_motifs(motif_agl3, motif_runx1, method="pearson", min_overlap=4)
-    assert isinstance(result.correlation, float)
+    assert isinstance(result.score, float)
     assert isinstance(result.offset, int)
     assert isinstance(result.is_reverse_complement, bool)
-    assert -1 <= result.correlation <= 1
+    assert -1 <= result.score <= 1
 
 
 def test_best_pearson_alignment_self(motif_agl3):
     result = align_motifs(motif_agl3, motif_agl3, method="pearson", min_overlap=4)
-    assert result.correlation > 0.9
+    assert result.score > 0.9
     assert result.offset == 0
     assert result.is_reverse_complement is False
 

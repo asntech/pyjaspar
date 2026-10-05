@@ -239,7 +239,7 @@ def similarity(
             "motif1": id1,
             "motif2": id2,
             "metric": "pearson",
-            "best_score": round(best.correlation, 6),
+            "best_score": round(best.score, 6),
             "best_offset": best.offset,
             "is_reverse_complement": best.is_reverse_complement,
         }
