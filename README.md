@@ -117,7 +117,7 @@ pyJASPAR provides few analysis tools, which are in development.
 
 ```python
 from pyjaspar import JasparDB
-from pyjaspar.analysis import pearson_correlation, best_correlation
+from pyjaspar.analysis import align_motifs, pearson_correlation
 
 jdb = JasparDB()
 m1 = jdb.fetch_motif_by_id("MA0001.1")
@@ -127,7 +127,8 @@ m2 = jdb.fetch_motif_by_id("MA0002.1")
 score = pearson_correlation(m1, m2)
 
 # Best alignment across all offsets and orientations
-score, offset, is_rc = best_correlation(m1, m2)
+best = align_motifs(m1, m2, method="pearson")
+score, offset, is_rc = best.correlation, best.offset, best.is_reverse_complement
 ```
 
 ### Sequence scanning

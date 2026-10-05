@@ -7,9 +7,18 @@
       show_source: true
       members_order: source
 
+## Comparison methods
+
+::: pyjaspar.analysis.methods
+    options:
+      show_source: true
+      members_order: source
+      filters:
+        - "!^_"
+
 ## Profile search
 
-::: pyjaspar.analysis.matrix_align
+::: pyjaspar.analysis.profile_search
     options:
       show_source: true
       members_order: source

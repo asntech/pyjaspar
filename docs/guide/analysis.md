@@ -59,7 +59,9 @@ for hit in search_profiles(query, candidates, top=3):
 
 ### Scoring
 
-The scoring implemented here is the one of the Matrix Align web tool. `score` is its
+With the default `method="matrix_align"`, the scoring implemented here is the one of the
+Matrix Align web tool (`method="pearson"` ranks by the best Pearson correlation instead,
+see [Motif alignment](#motif-alignment)). `score` is its
 "Score" column. Every aligned column contributes between
 0 and 2, so a profile aligned with itself scores twice its width, and a longer
 profile tends to score higher. The alignment may leave columns hanging off either
@@ -81,12 +83,16 @@ source in the [`jaspar_tools`](https://bitbucket.org/CBGR/jaspar_tools) reposito
 implementation here is independent; `gaps`, `offset` and `alignment_length` follow what that
 program reports.
 
-### ProfileHit fields
+### MatrixAlignHit fields
+
+The fields after `percent_score` are read from `result`, the comparison of the query
+with the candidate (the same object `align_motifs` returns).
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `matrix_id` | str | JASPAR matrix ID of the candidate |
 | `name` | str | Name of the TF the candidate belongs to |
+| `result` | `MatrixAlignResult` | The comparison of the query with this candidate |
 | `score` | float | Alignment score (the web tool's "Score") |
 | `percent_score` | float | The web tool's "Percent Score" (depends on the set of candidates, see above) |
 | `is_reverse_complement` | bool | The candidate's reverse complement aligned better |
@@ -103,7 +109,7 @@ Compare two motifs using column-wise metrics.
 
 ```python
 from pyjaspar import JasparDB
-from pyjaspar.analysis import pearson_correlation, best_correlation
+from pyjaspar.analysis import align_motifs, pearson_correlation
 
 jdb = JasparDB()
 m1 = jdb.fetch_motif_by_id("MA0001.1")
@@ -114,8 +120,9 @@ score = pearson_correlation(m1, m2, offset=0)
 print(f"Pearson r = {score:.4f}")
 
 # Best alignment across all offsets and orientations
-score, offset, is_rc = best_correlation(m1, m2, min_overlap=4)
-print(f"Best: r={score:.4f}, offset={offset}, reverse_complement={is_rc}")
+best = align_motifs(m1, m2, method="pearson", min_overlap=4)
+print(f"Best: r={best.correlation:.4f}, offset={best.offset}, "
+      f"reverse_complement={best.is_reverse_complement}")
 ```
 
 ### Euclidean distance
@@ -148,19 +155,23 @@ All metrics return 0.0 (Pearson) or `float('inf')` (Euclidean, KL) when there is
 
 ## Motif alignment
 
-`align_motifs()` finds the best offset and orientation between two motifs
-and renders it as an actual gapped alignment, rather than just a score.
+`align_motifs()` compares two motifs with `method="matrix_align"` (default, the Matrix
+Align scoring described under [Profile search](#profile-search)) or `method="pearson"`
+(the best Pearson correlation over all offsets and both orientations), and returns the
+score and the aligned columns. `format_alignment()` renders the result as a gapped,
+side-by-side alignment of the two consensus sequences. Scores of the two methods are on
+different scales.
 
 ```python
 from pyjaspar import JasparDB
-from pyjaspar.analysis import align_motifs
+from pyjaspar.analysis import align_motifs, format_alignment
 
 jdb = JasparDB()
 m1 = jdb.fetch_motif_by_id("MA0001.1")
 m2 = jdb.fetch_motif_by_id("MA0002.1")
 
-result = align_motifs(m1, m2)
-print(result.alignment)
+result = align_motifs(m1, m2, method="pearson")
+print(format_alignment(m1, m2, result))
 # target            0 ------CCATAAATAG 10
 #                   0 ------|.|||----- 16
 # query             0 TAACCACAATA----- 11
@@ -169,16 +180,20 @@ print(f"score={result.score:.4f} offset={result.offset} "
       f"is_reverse_complement={result.is_reverse_complement}")
 ```
 
-### AlignmentResult fields
+### Result fields
+
+`align_motifs` returns a `MatrixAlignResult` or a `PearsonResult`.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `motif1_id` | str | First motif's JASPAR matrix ID |
-| `motif2_id` | str | Second motif's JASPAR matrix ID |
-| `score` | float | Pearson correlation at the best offset (from `best_correlation`) |
-| `offset` | int | Position offset of motif2 relative to motif1 |
+| `motif1_id`, `motif2_id` | str | The two motifs' JASPAR matrix IDs |
+| `score` | float | Matrix Align score, or the Pearson correlation (also available as `correlation`) |
+| `method` | str | `"matrix_align"` or `"pearson"` |
+| `alignment` | `AlignmentPath` | The aligned columns: zero-based column boundaries of both motifs (`coordinates`), without the columns that hang off either end |
+| `offset` | int | Position in motif1 minus position in motif2 at the first aligned pair |
 | `is_reverse_complement` | bool | Whether motif2 was reverse-complemented |
-| `alignment` | `Bio.Align.Alignment` | The rendered alignment (`str()` gives the target/query display) |
+| `overlap`, `gaps`, `alignment_length` | int | Paired columns, gap columns (Pearson: always 0), and their sum |
+| `parameters` | dict | The options used |
 
 ## Enrichment analysis
 
