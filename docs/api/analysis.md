@@ -7,15 +7,6 @@
       show_source: true
       members_order: source
 
-## Comparison methods
-
-::: pyjaspar.analysis.methods
-    options:
-      show_source: true
-      members_order: source
-      filters:
-        - "!^_"
-
 ## Profile search
 
 ::: pyjaspar.analysis.profile_search
