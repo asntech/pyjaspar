@@ -34,6 +34,11 @@ dependencies = [
 
 [project.optional-dependencies]
 
+viz = [
+    "logomaker>=0.8",
+    "matplotlib>=3.7",
+    "pandas>=1.5",
+]
 docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.0",
