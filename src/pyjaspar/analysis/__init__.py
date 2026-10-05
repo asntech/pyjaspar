@@ -11,6 +11,7 @@ from .methods import (
     ProfileHit,
 )
 from .profile_search import search_profiles
+from .inference import InferenceHit, infer_profiles
 from .scanning import ScanHit, scan_sequence
 from .similarity import (
     euclidean_distance,
@@ -22,6 +23,8 @@ __all__ = [
     "euclidean_distance",
     "kl_divergence",
     "pearson_correlation",
+    "InferenceHit",
+    "infer_profiles",
     "ScanHit",
     "scan_sequence",
     "align_motifs",

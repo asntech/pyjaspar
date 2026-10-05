@@ -53,7 +53,7 @@ def _print_output(data: Any, fmt: str, tsv_keys: list[str] | None = None) -> Non
 def _is_fasta_file(value: str) -> bool:
     """Check if the value looks like a FASTA file path."""
     p = Path(value)
-    return p.exists() and p.suffix.lower() in (".fa", ".fasta", ".fna", ".fas")
+    return p.suffix.lower() in (".fa", ".fasta", ".fna", ".fas") and p.exists()
 
 
 def _read_fasta(path: str) -> list[tuple[str, str]]:

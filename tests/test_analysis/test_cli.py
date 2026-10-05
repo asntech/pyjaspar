@@ -314,3 +314,12 @@ def test_enrichment_invalid_motif_warns():
             ],
         )
         assert result.exit_code == 1
+
+
+# --- FASTA detection ---
+
+
+def test_is_fasta_file_ignores_long_literal_sequences():
+    from pyjaspar.cli.analysis import _is_fasta_file
+
+    assert _is_fasta_file("ACGT" * 200) is False

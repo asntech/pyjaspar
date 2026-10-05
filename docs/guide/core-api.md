@@ -130,6 +130,21 @@ print(motif.format("pfm"))
 print(motif.format("transfac"))
 ```
 
+## Sequence logo
+
+Draw a motif as a sequence logo (requires `pip install pyjaspar[viz]`).
+Letter heights are information content in bits.
+
+```python
+from pyjaspar.viz import plot_logo
+
+motif = jdb.fetch_motif_by_id("MA0139.2")
+logo = plot_logo(motif)
+logo.fig.savefig("ctcf_logo.png", dpi=150, bbox_inches="tight")
+```
+
+Pass `ax=` to draw several logos on one figure.
+
 ## Available releases
 
 ```python
