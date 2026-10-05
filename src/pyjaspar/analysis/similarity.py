@@ -79,49 +79,6 @@ def pearson_correlation(
     return float(np.mean(correlations))
 
 
-def best_correlation(
-    motif1: Motif,
-    motif2: Motif,
-    min_overlap: int = 4,
-    both_strands: bool = True,
-) -> tuple[float, int, bool]:
-    """Find the best Pearson correlation across all valid offsets and orientations.
-
-    Args:
-        motif1: First motif (reference).
-        motif2: Second motif.
-        min_overlap: Minimum number of overlapping columns required.
-        both_strands: If True, also try the reverse complement of motif2.
-
-    Returns:
-        Tuple of (best_score, best_offset, is_reverse_complement).
-    """
-    best_score = -2.0
-    best_offset = 0
-    best_rc = False
-
-    len1 = motif1.length
-    len2 = motif2.length
-
-    for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
-        score = pearson_correlation(motif1, motif2, offset)
-        if score > best_score:
-            best_score = score
-            best_offset = offset
-            best_rc = False
-
-    if both_strands:
-        rc_motif2 = motif2.reverse_complement()
-        for offset in range(-(len2 - min_overlap), len1 - min_overlap + 1):
-            score = pearson_correlation(motif1, rc_motif2, offset)
-            if score > best_score:
-                best_score = score
-                best_offset = offset
-                best_rc = True
-
-    return best_score, best_offset, best_rc
-
-
 def euclidean_distance(
     motif1: Motif,
     motif2: Motif,

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from pyjaspar import JasparDB
+from pyjaspar.analysis import align_motifs
 from pyjaspar.analysis.similarity import (
-    best_correlation,
     euclidean_distance,
     kl_divergence,
     pearson_correlation,
@@ -46,19 +46,19 @@ def test_pearson_no_overlap(motif_agl3, motif_runx1):
     assert score == 0.0
 
 
-def test_best_correlation(motif_agl3, motif_runx1):
-    score, offset, is_rc = best_correlation(motif_agl3, motif_runx1, min_overlap=4)
-    assert isinstance(score, float)
-    assert isinstance(offset, int)
-    assert isinstance(is_rc, bool)
-    assert -1 <= score <= 1
+def test_best_pearson_alignment(motif_agl3, motif_runx1):
+    result = align_motifs(motif_agl3, motif_runx1, method="pearson", min_overlap=4)
+    assert isinstance(result.score, float)
+    assert isinstance(result.offset, int)
+    assert isinstance(result.is_reverse_complement, bool)
+    assert -1 <= result.score <= 1
 
 
-def test_best_correlation_self(motif_agl3):
-    score, offset, is_rc = best_correlation(motif_agl3, motif_agl3, min_overlap=4)
-    assert score > 0.9
-    assert offset == 0
-    assert is_rc is False
+def test_best_pearson_alignment_self(motif_agl3):
+    result = align_motifs(motif_agl3, motif_agl3, method="pearson", min_overlap=4)
+    assert result.score > 0.9
+    assert result.offset == 0
+    assert result.is_reverse_complement is False
 
 
 def test_euclidean_self(motif_agl3):

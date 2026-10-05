@@ -3,18 +3,23 @@
 Requires the ``analysis`` extra: ``pip install pyjaspar[analysis]``
 """
 
+from .alignment import align_motifs, format_alignment
 from .enrichment import EnrichmentResult, motif_enrichment
+from .methods import (
+    AlignmentPath,
+    AlignmentResult,
+    ProfileHit,
+)
+from .profile_search import search_profiles
 from .inference import InferenceHit, infer_profiles
 from .scanning import ScanHit, scan_sequence
 from .similarity import (
-    best_correlation,
     euclidean_distance,
     kl_divergence,
     pearson_correlation,
 )
 
 __all__ = [
-    "best_correlation",
     "euclidean_distance",
     "kl_divergence",
     "pearson_correlation",
@@ -22,6 +27,12 @@ __all__ = [
     "infer_profiles",
     "ScanHit",
     "scan_sequence",
+    "align_motifs",
+    "format_alignment",
+    "search_profiles",
+    "AlignmentPath",
+    "AlignmentResult",
+    "ProfileHit",
     "EnrichmentResult",
     "motif_enrichment",
 ]
