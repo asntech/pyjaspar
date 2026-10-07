@@ -8,13 +8,26 @@ including its "Percent Score" column.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING
+import re
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
-from .methods import ProfileHit, _compare_many, _resolve_options, _sort_key
+from ._matrix_alignment import _frequencies
+from .methods import (
+    ProfileHit,
+    _check_method,
+    _compare_matrix_align,
+    _compare_pearson,
+    _matrix_id,
+    _resolve_options,
+    _validate_profile,
+)
 
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
+
+
+_MATRIX_ID = re.compile(r"[A-Z]+(\d+)\.(\d+)")
 
 
 def search_profiles(
@@ -66,6 +79,54 @@ def search_profiles(
     items = list(candidates)
     if not items:
         return []
-    hits = _compare_many(query, items, method, options)
+    _validate_profile(query)
+    for candidate in items:
+        _validate_profile(candidate)
+
+    if method == "pearson":
+        hits = [
+            ProfileHit(_matrix_id(c), getattr(c, "name", None), _compare_pearson(query, c, options))
+            for c in items
+        ]
+    else:
+        # Normalize the query once and reuse it for every candidate.
+        query_frequencies = _frequencies(query)
+        results = [_compare_matrix_align(query, c, options, query_frequencies) for c in items]
+        # The web tool uses the narrowest profile seen so far in matrix-ID order.
+        # Calculate percentages over the full collection before ranking or truncating.
+        narrowest = query.length
+        percent = {}
+        for i in _matrix_id_order(items):
+            narrowest = min(narrowest, items[i].length)
+            percent[i] = 100 * results[i].score / (2 * narrowest)
+        hits = [
+            ProfileHit(_matrix_id(c), getattr(c, "name", None), r, percent[i])
+            for i, (c, r) in enumerate(zip(items, results, strict=True))
+        ]
     hits.sort(key=lambda hit: (key(hit), hit.matrix_id or ""))
     return hits if top is None else hits[:top]
+
+
+def _matrix_id_order(candidates: Sequence[Motif]) -> list[int]:
+    """Indices in matrix-ID order, or input order if any ID is not standard."""
+    keys = []
+    for candidate in candidates:
+        match = _MATRIX_ID.fullmatch(_matrix_id(candidate) or "")
+        if match is None:
+            return list(range(len(candidates)))
+        keys.append((int(match.group(1)), int(match.group(2))))
+    return sorted(range(len(candidates)), key=keys.__getitem__)
+
+
+def _sort_key(method: object, sort_by: str | None) -> Callable[[Any], float]:
+    """Validate sorting before options or candidates; return a best-first key."""
+    method = _check_method(method)
+    if sort_by in (None, "score"):
+        return lambda hit: -hit.score
+    if method == "pearson":
+        raise ValueError(f"sort_by must be 'score' for method='pearson', not {sort_by!r}")
+    if sort_by == "percent_score":
+        return lambda hit: -hit.percent_score
+    raise ValueError(
+        f"sort_by must be 'score' or 'percent_score' for method='matrix_align', not {sort_by!r}"
+    )
