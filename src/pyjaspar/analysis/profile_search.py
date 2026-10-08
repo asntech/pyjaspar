@@ -12,12 +12,11 @@ import re
 from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any
 
-from ._matrix_alignment import _frequencies
 from .methods import (
+    AlignmentResult,
     ProfileHit,
     _check_method,
-    _compare_matrix_align,
-    _compare_pearson,
+    _compare,
     _matrix_id,
     _resolve_options,
     _validate_profile,
@@ -82,29 +81,33 @@ def search_profiles(
     _validate_profile(query)
     for candidate in items:
         _validate_profile(candidate)
-
-    if method == "pearson":
-        hits = [
-            ProfileHit(_matrix_id(c), getattr(c, "name", None), _compare_pearson(query, c, options))
-            for c in items
-        ]
+    results = [_compare(query, c, method, options) for c in items]
+    if method == "matrix_align":
+        percents: list[float | None] = list(_percent_scores(query, items, results))
     else:
-        # Normalize the query once and reuse it for every candidate.
-        query_frequencies = _frequencies(query)
-        results = [_compare_matrix_align(query, c, options, query_frequencies) for c in items]
-        # The web tool uses the narrowest profile seen so far in matrix-ID order.
-        # Calculate percentages over the full collection before ranking or truncating.
-        narrowest = query.length
-        percent = {}
-        for i in _matrix_id_order(items):
-            narrowest = min(narrowest, items[i].length)
-            percent[i] = 100 * results[i].score / (2 * narrowest)
-        hits = [
-            ProfileHit(_matrix_id(c), getattr(c, "name", None), r, percent[i])
-            for i, (c, r) in enumerate(zip(items, results, strict=True))
-        ]
+        percents = [None] * len(items)
+    hits = [
+        ProfileHit(_matrix_id(c), getattr(c, "name", None), r, p)
+        for c, r, p in zip(items, results, percents, strict=True)
+    ]
     hits.sort(key=lambda hit: (key(hit), hit.matrix_id or ""))
     return hits if top is None else hits[:top]
+
+
+def _percent_scores(
+    query: Motif, candidates: Sequence[Motif], results: Sequence[AlignmentResult]
+) -> list[float]:
+    """The web tool's Percent Score, computed over the full set before ranking or truncating.
+
+    The web tool divides by the narrowest profile seen so far, going through its
+    table in matrix-ID order; see ``ProfileHit.percent_score``.
+    """
+    narrowest = query.length
+    percents = [0.0] * len(candidates)
+    for i in _matrix_id_order(candidates):
+        narrowest = min(narrowest, candidates[i].length)
+        percents[i] = 100 * results[i].score / (2 * narrowest)
+    return percents
 
 
 def _matrix_id_order(candidates: Sequence[Motif]) -> list[int]:

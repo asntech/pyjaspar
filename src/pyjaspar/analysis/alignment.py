@@ -16,8 +16,7 @@ from Bio.Align import Alignment
 from .methods import (
     AlignmentPath,
     AlignmentResult,
-    _compare_matrix_align,
-    _compare_pearson,
+    _compare,
     _resolve_options,
     _validate_profile,
 )
@@ -64,9 +63,7 @@ def align_motifs(
     )
     _validate_profile(motif1)
     _validate_profile(motif2)
-    if method == "pearson":
-        return _compare_pearson(motif1, motif2, options)
-    return _compare_matrix_align(motif1, motif2, options)
+    return _compare(motif1, motif2, method, options)
 
 
 def _display_coordinates(path: AlignmentPath) -> np.ndarray:

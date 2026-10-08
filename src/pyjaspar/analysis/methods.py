@@ -308,10 +308,8 @@ def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> AlignmentRe
     )
 
 
-def _compare_matrix_align(
-    a: Motif, b: Motif, options: dict[str, Any], query_frequencies: np.ndarray | None = None
-) -> AlignmentResult:
-    fa = _frequencies(a) if query_frequencies is None else query_frequencies
+def _compare_matrix_align(a: Motif, b: Motif, options: dict[str, Any]) -> AlignmentResult:
+    fa = _frequencies(a)
     fb = _frequencies(b)
     score, is_rc, coordinates = align_frequencies(
         fa, fb, options["open_penalty"], options["ext_penalty"], options["both_strands"]
@@ -329,3 +327,10 @@ def _compare_matrix_align(
         ),
         parameters=dict(options),
     )
+
+
+def _compare(a: Motif, b: Motif, method: str, options: dict[str, Any]) -> AlignmentResult:
+    """Compare two validated motifs with an already resolved method and options."""
+    if method == "pearson":
+        return _compare_pearson(a, b, options)
+    return _compare_matrix_align(a, b, options)
