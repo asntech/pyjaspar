@@ -1,4 +1,4 @@
-"""Motif comparison methods, their results, and the dispatch between them.
+"""Shared motif comparison results, validation, and method-specific scoring.
 
 Two methods are available, selected by name:
 
@@ -19,8 +19,6 @@ from __future__ import annotations
 
 import math
 import numbers
-import re
-from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -39,7 +37,6 @@ if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
 
 METHODS = ("matrix_align", "pearson")
-_MATRIX_ID = re.compile(r"[A-Z]+(\d+)\.(\d+)")
 
 
 @dataclass(frozen=True)
@@ -311,10 +308,8 @@ def _compare_pearson(a: Motif, b: Motif, options: dict[str, Any]) -> AlignmentRe
     )
 
 
-def _compare_matrix_align(
-    a: Motif, b: Motif, options: dict[str, Any], query_frequencies: np.ndarray | None = None
-) -> AlignmentResult:
-    fa = _frequencies(a) if query_frequencies is None else query_frequencies
+def _compare_matrix_align(a: Motif, b: Motif, options: dict[str, Any]) -> AlignmentResult:
+    fa = _frequencies(a)
     fb = _frequencies(b)
     score, is_rc, coordinates = align_frequencies(
         fa, fb, options["open_penalty"], options["ext_penalty"], options["both_strands"]
@@ -334,63 +329,8 @@ def _compare_matrix_align(
     )
 
 
-def _compare_pair(a: Motif, b: Motif, method: str, options: dict[str, Any]) -> AlignmentResult:
-    """Compare two motifs with an already resolved method and options."""
-    _validate_profile(a)
-    _validate_profile(b)
+def _compare(a: Motif, b: Motif, method: str, options: dict[str, Any]) -> AlignmentResult:
+    """Compare two validated motifs with an already resolved method and options."""
     if method == "pearson":
         return _compare_pearson(a, b, options)
     return _compare_matrix_align(a, b, options)
-
-
-def _matrix_id_order(candidates: Sequence[Motif]) -> list[int]:
-    """Indices of the candidates in matrix-ID order, or as given if an ID is not standard."""
-    keys = []
-    for candidate in candidates:
-        match = _MATRIX_ID.fullmatch(_matrix_id(candidate) or "")
-        if match is None:
-            return list(range(len(candidates)))
-        keys.append((int(match.group(1)), int(match.group(2))))
-    return sorted(range(len(candidates)), key=keys.__getitem__)
-
-
-def _compare_many(
-    query: Motif, candidates: Sequence[Motif], method: str, options: dict[str, Any]
-) -> list[ProfileHit]:
-    """One hit per candidate, in input order, with collection-dependent values filled in."""
-    _validate_profile(query)
-    for candidate in candidates:
-        _validate_profile(candidate)
-    if method == "pearson":
-        return [
-            ProfileHit(_matrix_id(c), getattr(c, "name", None), _compare_pearson(query, c, options))
-            for c in candidates
-        ]
-
-    query_frequencies = _frequencies(query)
-    results = [_compare_matrix_align(query, c, options, query_frequencies) for c in candidates]
-    # The web tool divides by the narrowest profile seen so far, going through
-    # its table in matrix-ID order; see ProfileHit.percent_score.
-    narrowest = query.length
-    percent = {}
-    for i in _matrix_id_order(candidates):
-        narrowest = min(narrowest, candidates[i].length)
-        percent[i] = 100 * results[i].score / (2 * narrowest)
-    return [
-        ProfileHit(_matrix_id(c), getattr(c, "name", None), r, percent[i])
-        for i, (c, r) in enumerate(zip(candidates, results, strict=True))
-    ]
-
-
-def _sort_key(method: object, sort_by: str | None) -> Callable[[Any], float]:
-    """Key that sorts hits best first, ascending."""
-    method = _check_method(method)
-    if sort_by in (None, "score"):
-        return lambda hit: -hit.score
-    if method == "pearson":
-        raise ValueError(f"sort_by must be 'score' for method='pearson', not {sort_by!r}")
-    if sort_by == "percent_score":
-        return lambda hit: -hit.percent_score
-    raise ValueError(
-        f"sort_by must be 'score' or 'percent_score' for method='matrix_align', not {sort_by!r}"
-    )

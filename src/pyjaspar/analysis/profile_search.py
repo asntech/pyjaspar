@@ -8,13 +8,25 @@ including its "Percent Score" column.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING
+import re
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
-from .methods import ProfileHit, _compare_many, _resolve_options, _sort_key
+from .methods import (
+    AlignmentResult,
+    ProfileHit,
+    _check_method,
+    _compare,
+    _matrix_id,
+    _resolve_options,
+    _validate_profile,
+)
 
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
+
+
+_MATRIX_ID = re.compile(r"[A-Z]+(\d+)\.(\d+)")
 
 
 def search_profiles(
@@ -66,6 +78,58 @@ def search_profiles(
     items = list(candidates)
     if not items:
         return []
-    hits = _compare_many(query, items, method, options)
+    _validate_profile(query)
+    for candidate in items:
+        _validate_profile(candidate)
+    results = [_compare(query, c, method, options) for c in items]
+    if method == "matrix_align":
+        percents: list[float | None] = list(_percent_scores(query, items, results))
+    else:
+        percents = [None] * len(items)
+    hits = [
+        ProfileHit(_matrix_id(c), getattr(c, "name", None), r, p)
+        for c, r, p in zip(items, results, percents, strict=True)
+    ]
     hits.sort(key=lambda hit: (key(hit), hit.matrix_id or ""))
     return hits if top is None else hits[:top]
+
+
+def _percent_scores(
+    query: Motif, candidates: Sequence[Motif], results: Sequence[AlignmentResult]
+) -> list[float]:
+    """The web tool's Percent Score, computed over the full set before ranking or truncating.
+
+    The web tool divides by the narrowest profile seen so far, going through its
+    table in matrix-ID order; see ``ProfileHit.percent_score``.
+    """
+    narrowest = query.length
+    percents = [0.0] * len(candidates)
+    for i in _matrix_id_order(candidates):
+        narrowest = min(narrowest, candidates[i].length)
+        percents[i] = 100 * results[i].score / (2 * narrowest)
+    return percents
+
+
+def _matrix_id_order(candidates: Sequence[Motif]) -> list[int]:
+    """Indices in matrix-ID order, or input order if any ID is not standard."""
+    keys = []
+    for candidate in candidates:
+        match = _MATRIX_ID.fullmatch(_matrix_id(candidate) or "")
+        if match is None:
+            return list(range(len(candidates)))
+        keys.append((int(match.group(1)), int(match.group(2))))
+    return sorted(range(len(candidates)), key=keys.__getitem__)
+
+
+def _sort_key(method: object, sort_by: str | None) -> Callable[[Any], float]:
+    """Validate sorting before options or candidates; return a best-first key."""
+    method = _check_method(method)
+    if sort_by in (None, "score"):
+        return lambda hit: -hit.score
+    if method == "pearson":
+        raise ValueError(f"sort_by must be 'score' for method='pearson', not {sort_by!r}")
+    if sort_by == "percent_score":
+        return lambda hit: -hit.percent_score
+    raise ValueError(
+        f"sort_by must be 'score' or 'percent_score' for method='matrix_align', not {sort_by!r}"
+    )
