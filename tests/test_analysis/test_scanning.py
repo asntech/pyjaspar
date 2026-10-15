@@ -107,7 +107,14 @@ def test_scan_hit_fields(ctcf_motif):
 
 
 def _brute_force_hits(sequence, motif, threshold, pseudocount=0.001):
-    """Score every window on both strands with log-odds computed here, not by Biopython."""
+    """Score every window on both strands without Biopython's search.
+
+    The log-odds follow what ``scan_sequence`` asks Biopython for: the pseudocount
+    is added to each base's count (``counts.normalize``), the background is uniform,
+    and scores are log2 ratios (``log_odds``). Only the scoring rule is shared;
+    positions and strands come from plain slicing here, so a coordinate error in
+    ``scan_sequence`` cannot be hidden by the same error in the reference.
+    """
     complement = str.maketrans("ACGT", "TGCA")
     columns = []
     for i in range(motif.length):
@@ -135,7 +142,12 @@ def _brute_force_hits(sequence, motif, threshold, pseudocount=0.001):
 
 @pytest.mark.parametrize("seed", range(5))
 def test_scan_matches_brute_force_scan_on_both_strands(ctcf_motif, seed):
-    """Every hit, on both strands, is where an independent scan of all windows finds it."""
+    """Every hit, on both strands, is where an independent scan of all windows finds it.
+
+    This checks pyjaspar's handling of Biopython's search results (in particular the
+    negative positions it returns for the minus strand) against a direct calculation
+    that does not use Biopython at all.
+    """
     rng = random.Random(seed)
     for _ in range(20):
         sequence = "".join(
