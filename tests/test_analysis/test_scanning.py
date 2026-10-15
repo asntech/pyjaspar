@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import math
+import random
+
 import pytest
 from Bio.motifs.jaspar import Motif
 from Bio.Seq import Seq
@@ -101,3 +104,48 @@ def test_scan_hit_fields(ctcf_motif):
         assert hasattr(hit, "score")
         assert hasattr(hit, "sequence")
         assert len(hit.sequence) == ctcf_motif.length
+
+
+def _brute_force_hits(sequence, motif, threshold, pseudocount=0.001):
+    """Score every window on both strands with log-odds computed here, not by Biopython."""
+    complement = str.maketrans("ACGT", "TGCA")
+    columns = []
+    for i in range(motif.length):
+        counts = {base: motif.counts[base][i] for base in "ACGT"}
+        total = sum(counts.values()) + 4 * pseudocount  # added to each base
+        columns.append(
+            {base: math.log2((counts[base] + pseudocount) / total / 0.25) for base in "ACGT"}
+        )
+    best = sum(max(column.values()) for column in columns)
+    worst = sum(min(column.values()) for column in columns)
+    cutoff = worst + threshold * (best - worst)
+
+    def score(window):
+        return sum(column[base] for column, base in zip(columns, window, strict=True))
+
+    hits = {}
+    for start in range(len(sequence) - motif.length + 1):
+        window = sequence[start : start + motif.length]
+        for strand, read in (("+", window), ("-", window.translate(complement)[::-1])):
+            value = score(read)
+            if value >= cutoff:
+                hits[(start, strand)] = value
+    return hits
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_scan_matches_brute_force_scan_on_both_strands(ctcf_motif, seed):
+    """Every hit, on both strands, is where an independent scan of all windows finds it."""
+    rng = random.Random(seed)
+    for _ in range(20):
+        sequence = "".join(
+            rng.choice("ACGT") for _ in range(rng.randint(ctcf_motif.length + 1, 120))
+        )
+        threshold = rng.choice([0.5, 0.6, 0.7])
+        hits = scan_sequence(sequence, ctcf_motif, threshold=threshold)
+        expected = _brute_force_hits(sequence, ctcf_motif, threshold)
+        assert {(hit.position, hit.strand) for hit in hits} == set(expected)
+        for hit in hits:
+            # Biopython scores in single precision
+            assert hit.score == pytest.approx(expected[(hit.position, hit.strand)], abs=1e-4)
+            assert hit.sequence == sequence[hit.position : hit.position + ctcf_motif.length]
