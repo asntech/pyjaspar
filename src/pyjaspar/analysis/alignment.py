@@ -13,7 +13,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 from Bio.Align import Alignment
 
-from .methods import AlignmentPath, AlignmentResult, _compare_pair, _resolve_options
+from .methods import (
+    AlignmentPath,
+    AlignmentResult,
+    _compare,
+    _resolve_options,
+    _validate_profile,
+)
 
 if TYPE_CHECKING:
     from Bio.motifs.jaspar import Motif
@@ -55,7 +61,9 @@ def align_motifs(
         open_penalty=open_penalty,
         ext_penalty=ext_penalty,
     )
-    return _compare_pair(motif1, motif2, method, options)
+    _validate_profile(motif1)
+    _validate_profile(motif2)
+    return _compare(motif1, motif2, method, options)
 
 
 def _display_coordinates(path: AlignmentPath) -> np.ndarray:
