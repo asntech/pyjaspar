@@ -9,11 +9,35 @@ from __future__ import annotations
 import json
 
 import pytest
+from Bio.motifs.jaspar import Motif
 from click.testing import CliRunner
 
 from pyjaspar import JasparDB
 from pyjaspar.analysis import align_motifs, format_alignment
-from pyjaspar.cli.analysis import align, similarity
+from pyjaspar.cli.analysis import align, scan, similarity
+
+
+@pytest.mark.parametrize("fmt", ["json", "tsv"])
+def test_scan_reverse_hit_uses_original_coordinates(monkeypatch, fmt):
+    motif = Motif(
+        matrix_id="TEST",
+        name="ACG",
+        counts={base: [10 if letter == base else 0 for letter in "ACG"] for base in "ACGT"},
+    )
+    monkeypatch.setattr(JasparDB, "fetch_motif_by_id", lambda self, matrix_id: motif)
+    result = CliRunner().invoke(
+        scan, ["CGTAAAAAAA", "--motif-id", "TEST", "--threshold", "0.99", "--format", fmt]
+    )
+    assert result.exit_code == 0
+    if fmt == "json":
+        hits = json.loads(result.output)["results"]
+        assert len(hits) == 1
+        assert (hits[0]["position"], hits[0]["strand"], hits[0]["sequence"]) == (0, "-", "CGT")
+    else:
+        rows = result.output.strip().splitlines()
+        assert len(rows) == 2
+        hit = dict(zip(rows[0].split("\t"), rows[1].split("\t"), strict=True))
+        assert (hit["position"], hit["strand"], hit["sequence"]) == ("0", "-", "CGT")
 
 
 @pytest.fixture(scope="module")

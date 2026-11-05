@@ -16,10 +16,11 @@ class ScanHit:
     """A single motif hit in a sequence.
 
     Attributes:
-        position: 0-based start position in the sequence.
+        position: 0-based start position in the original input sequence, on either strand.
         strand: ``"+"`` or ``"-"``.
         score: PSSM score at this position.
-        sequence: The matched subsequence.
+        sequence: The matched substring of the original input sequence (not
+            reverse-complemented for minus-strand hits).
     """
 
     position: int
@@ -81,7 +82,9 @@ def scan_sequence(
             subseq = seq_str[pos_int : pos_int + motif_length]
             hits.append(ScanHit(position=pos_int, strand="+", score=score_float, sequence=subseq))
         elif both_strands:
-            rc_pos = -(pos_int + motif_length)
+            # Biopython encodes reverse hits as start - len(sequence).
+            # Convert its negative index to the original sequence coordinates.
+            rc_pos = pos_int + len(seq_str)
             subseq = seq_str[rc_pos : rc_pos + motif_length]
             hits.append(ScanHit(position=rc_pos, strand="-", score=score_float, sequence=subseq))
 
